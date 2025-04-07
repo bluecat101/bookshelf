@@ -1,0 +1,28 @@
+# Dart/Pub
+.dart_tool/
+.packages
+build/
+.pub-cache/
+.pub/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Flutter/Dart specific
+.flutter-plugins
+.flutter-plugins-dependencies
+.metadata
+android/.gradle/
+ios/Pods/
+ios/.symlinks/
+macos/Pods/
+macos/.symlinks/
+linux/flutter/ephemeral/
+windows/flutter/ephemeral/
+web/.dart_tool/
+
+# Generated files
+Generated.xcconfig
+xcuserdata/
