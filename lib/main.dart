@@ -5,14 +5,11 @@ import 'book/index.dart';
 import 'book/newBook.dart';
 import 'package:bookshelf/book/model/book.dart';
 
-
-
 void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(BookAdapter());
   runApp(const MyApp());
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -45,6 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _counter++;
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,21 +56,17 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             OutlinedButton(
               onPressed: () {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(
-                          builder: (context) => Index(),
-                      ),
-                  );
+                Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (context) => Index()));
               },
               child: Text('本棚を見る'),
             ),
             OutlinedButton(
               onPressed: () {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(
-                          builder: (context) => NewBook(),
-                      ),
-                  );
+                Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (context) => NewBook()));
               },
               child: Text('本棚に追加する'),
             ),
@@ -83,7 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: _incrementCounter,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
-      ), 
+      ),
     );
   }
 }

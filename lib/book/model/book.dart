@@ -13,23 +13,23 @@ class Book {
     required this.page,
     required this.height,
     required this.thickness,
-    this.image
+    this.image,
   });
   @HiveField(0)
   final String title;
 
   @HiveField(1)
   final String author;
-  
+
   @HiveField(2)
   final int page;
-  
+
   @HiveField(3)
   final double height;
-  
+
   @HiveField(4)
   final double thickness;
-  
+
   // 数が増えると画像をここに保存せずにpathを保存し呼び出す。
   @HiveField(5)
   final Uint8List? image;
