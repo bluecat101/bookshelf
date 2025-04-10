@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
-import 'index.dart';
-import 'newBook.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'book/index.dart';
+import 'book/newBook.dart';
+import 'package:bookshelf/book/model/book.dart';
 
 
-void main() {
+
+void main() async {
+  await Hive.initFlutter();
+  Hive.registerAdapter(BookAdapter());
   runApp(const MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
