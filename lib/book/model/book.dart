@@ -47,21 +47,21 @@ class Book {
   static String? validatePage(String? value) {
     if (value == null || int.tryParse(value) == null) return '数字を入れてください';
     final parsedValue = int.parse(value);
-    if (parsedValue < 1) return '0以上にしてください';
+    if (parsedValue < 1) return '1以上にしてください';
     return null;
   }
 
   static String? validateHeight(String? value) {
     if (value == null || double.tryParse(value) == null) return '数字を入れてください';
     final parsedValue = double.parse(value);
-    if (parsedValue < 1) return '0以上にしてください';
+    if (parsedValue < 1) return '1以上にしてください';
     return null;
   }
 
   static String? validateThickness(String? value) {
     if (value == null || double.tryParse(value) == null) return '数字を入れてください';
     final parsedValue = double.parse(value);
-    if (parsedValue < 1) return '0以上にしてください';
+    if (parsedValue < 1) return '1以上にしてください';
     return null;
   }
 }
