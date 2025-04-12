@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:bookshelf/book/model/book.dart';
 
 void main() {
-  group('Book title validation', () {
+  group('タイトル バリデーションチェック', () {
     test('タイトルが空ならエラー', () {
       final result = Book.validateTitle(null);
       expect(result, 'タイトルを入力してください');
@@ -18,7 +18,7 @@ void main() {
       expect(result, null);
     });
   });
-  group('Book author validation', () {
+  group('著者  バリデーションチェック', () {
     test('著者が空ならエラー', () {
       final result = Book.validateAuthor(null);
       expect(result, '著者を入力してください');
@@ -33,7 +33,7 @@ void main() {
       expect(result, null);
     });
   });
-  group('Book page validation', () {
+  group('ページ バリデーションチェック', () {
     test('ページが空ならエラー', () {
       final result = Book.validatePage(null);
       expect(result, '数字を入れてください');
@@ -54,7 +54,7 @@ void main() {
     });
   });
 
-  group('Book height validation', () {
+  group('高さ バリデーションチェック', () {
     test('高さが空ならエラー', () {
       final result = Book.validateHeight(null);
       expect(result, '数字を入れてください');
@@ -75,7 +75,7 @@ void main() {
     });
   });
 
-  group('Book thickness validation', () {
+  group('厚さ バリデーションチェック', () {
     test('厚さが空ならエラー', () {
       final result = Book.validateThickness(null);
       expect(result, '数字を入れてください');
