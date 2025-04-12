@@ -33,4 +33,35 @@ class Book {
   // 数が増えると画像をここに保存せずにpathを保存し呼び出す。
   @HiveField(5)
   final Uint8List? image;
+
+  static String? validateTitle(String? value) {
+    if (value == null || value.isEmpty) return 'タイトルを入力してください';
+    return null;
+  }
+
+  static String? validateAuthor(String? value) {
+    if (value == null || value.isEmpty) return '著者を入力してください';
+    return null;
+  }
+
+  static String? validatePage(String? value) {
+    if (value == null || int.tryParse(value) == null) return '数字を入れてください';
+    final parsedValue = int.parse(value);
+    if (parsedValue < 1) return '0以上にしてください';
+    return null;
+  }
+
+  static String? validateHeight(String? value) {
+    if (value == null || double.tryParse(value) == null) return '数字を入れてください';
+    final parsedValue = double.parse(value);
+    if (parsedValue < 1) return '0以上にしてください';
+    return null;
+  }
+
+  static String? validateThickness(String? value) {
+    if (value == null || double.tryParse(value) == null) return '数字を入れてください';
+    final parsedValue = double.parse(value);
+    if (parsedValue < 1) return '0以上にしてください';
+    return null;
+  }
 }
