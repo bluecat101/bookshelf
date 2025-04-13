@@ -20,17 +20,24 @@ Future<void> enterInvalidFormInput(WidgetTester tester) async {
   await tester.enterText(thicknessField, 'sample thickness');
 }
 
-Future<void> enterValidFormInput(WidgetTester tester) async {
+Future<void> enterValidFormInput(
+  WidgetTester tester, {
+  String title = "sample title",
+  String author = "sample author",
+  String page = "1",
+  String height = "1",
+  String thickness = "1",
+}) async {
   final titleField = find.widgetWithText(TextFormField, 'title');
   final authorField = find.widgetWithText(TextFormField, 'author');
   final pageField = find.widgetWithText(TextFormField, 'page');
   final heightField = find.widgetWithText(TextFormField, 'height');
   final thicknessField = find.widgetWithText(TextFormField, 'thickness');
-  await tester.enterText(titleField, 'sample title');
-  await tester.enterText(authorField, 'sample author');
-  await tester.enterText(pageField, '1');
-  await tester.enterText(heightField, '1');
-  await tester.enterText(thicknessField, '1');
+  await tester.enterText(titleField, title);
+  await tester.enterText(authorField, author);
+  await tester.enterText(pageField, page);
+  await tester.enterText(heightField, height);
+  await tester.enterText(thicknessField, thickness);
 }
 
 void initHive() {
@@ -54,7 +61,7 @@ void initHive() {
 }
 
 void main() {
-  initHive();
+  initHive(); // Hiveの初期化
   testWidgets('タイトルのフォームが機能するかの確認', (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(home: NewBook()));
     final titleField = find.widgetWithText(TextFormField, 'title');
@@ -93,6 +100,32 @@ void main() {
     expect(find.text('著者を入力してください'), findsOneWidget);
     expect(find.text('数字を入れてください'), findsNWidgets(3));
   });
+  // これより下は、単体でテストする場合にはinitHive()を実行してください
+  testWidgets('データが保存されるかどうか', (WidgetTester tester) async {
+    final title = "sample title";
+    final author = "sample author";
+    final page = 1;
+    final height = 1;
+    final thickness = 1;
+    await tester.pumpWidget(MaterialApp(home: NewBook()));
+    await enterValidFormInput(
+      tester,
+      title: title,
+      author: author,
+      page: page.toString(),
+      height: height.toString(),
+      thickness: thickness.toString(),
+    );
+    await tester.tap(find.byType(ElevatedButton));
+    await tester.pumpAndSettle();
+    final bookshelf = await Hive.openBox<Book>('book');
+    final books = bookshelf.values.toList();
+    expect(books[0].title, title);
+    expect(books[0].author, author);
+    expect(books[0].page, page);
+    expect(books[0].height, height);
+    expect(books[0].thickness, thickness);
+  });
   testWidgets('(失敗時)submitボタンを押してもダイアログが表示されない', (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(home: NewBook()));
     await enterInvalidFormInput(tester);
@@ -118,6 +151,5 @@ void main() {
     await tester.tap(find.widgetWithText(TextButton, '本棚を見に行く'));
     await tester.pumpAndSettle();
     expect(find.byType(Index), findsOneWidget);
-    // expect(find.text('本棚を見に行く'), findsOneWidget);
   });
 }
