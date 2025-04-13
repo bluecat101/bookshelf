@@ -26,3 +26,4 @@ web/.dart_tool/
 # Generated files
 Generated.xcconfig
 xcuserdata/
+test/book/model/hive_test/*
