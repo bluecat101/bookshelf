@@ -6,7 +6,7 @@ import 'dart:io';
 import 'package:hive/hive.dart';
 import 'package:bookshelf/book/model/book.dart';
 
-// 失敗時の
+// 失敗時の入力フォーム
 Future<void> enterInvalidFormInput(WidgetTester tester) async {
   final titleField = find.widgetWithText(TextFormField, 'title');
   final authorField = find.widgetWithText(TextFormField, 'author');
@@ -20,6 +20,7 @@ Future<void> enterInvalidFormInput(WidgetTester tester) async {
   await tester.enterText(thicknessField, 'sample thickness');
 }
 
+// 成功時の入力フォーム
 Future<void> enterValidFormInput(
   WidgetTester tester, {
   String title = "sample title",
@@ -40,6 +41,7 @@ Future<void> enterValidFormInput(
   await tester.enterText(thicknessField, thickness);
 }
 
+// Hiveを初期化する
 void initHive() {
   final hiveDirPath = 'test/book/model/hive_test';
   setUpAll(() async {
