@@ -23,10 +23,8 @@ class _NewBookPageState extends State<NewBook> {
     if (_formKey.currentState!.validate()) {
       final title =
           _titleKey.currentState!.value!; // validateの中でnullチェックをしているため!を使用
-      debugPrint(title);
       final author = _authorKey.currentState!.value!;
       final page = int.parse(_pageKey.currentState!.value!);
-
       final height = double.parse(_heightKey.currentState!.value!);
       final thickness = double.parse(_thicknessKey.currentState!.value!);
       final bookshelf = await Hive.openBox<Book>('book');
