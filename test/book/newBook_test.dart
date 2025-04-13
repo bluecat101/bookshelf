@@ -19,20 +19,20 @@ void main() {
   testWidgets('ページのフォームが機能するかの確認', (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(home: NewBook()));
     final pageField = find.widgetWithText(TextFormField, 'page');
-    await tester.enterText(pageField, 'sample page');
-    expect(find.text('sample page'), findsOneWidget);
+    await tester.enterText(pageField, '1');
+    expect(find.text('1'), findsOneWidget);
   });
   testWidgets('高さのフォームが機能するかの確認', (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(home: NewBook()));
     final heightField = find.widgetWithText(TextFormField, 'height');
-    await tester.enterText(heightField, 'sample height');
-    expect(find.text('sample height'), findsOneWidget);
+    await tester.enterText(heightField, '1');
+    expect(find.text('1'), findsOneWidget);
   });
   testWidgets('厚さのフォームが機能するかの確認', (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(home: NewBook()));
     final thicknessField = find.widgetWithText(TextFormField, 'thickness');
-    await tester.enterText(thicknessField, 'sample thickness');
-    expect(find.text('sample thickness'), findsOneWidget);
+    await tester.enterText(thicknessField, '1');
+    expect(find.text('1'), findsOneWidget);
   });
   testWidgets('バリデーションの確認', (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(home: NewBook()));
