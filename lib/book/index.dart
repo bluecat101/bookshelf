@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:bookshelf/book/show.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'model/book.dart';
@@ -15,27 +16,22 @@ class _IndexPageState extends State<Index> {
     return Scaffold(
       appBar: AppBar(title: Text('Index')),
       body: FutureBuilder<Box<Book>>(
-        // 非同期で Hive の 'book' Box を開く
-        future: Hive.openBox<Book>('book'),
+        future: Hive.openBox<Book>('book'), // 非同期でHiveにアクセス
 
-        // snapshot は future の状態を表す
-        builder: (context, snapshot) {
-          // まだデータ（Box）が読み込まれていないときはローディング表示
+        builder: (BuildContext context, AsyncSnapshot<Box<Book>> snapshot) {
           if (!snapshot.hasData) {
+            // 非同期が完了していなければ、ローディング画面を表示する
             return Center(child: CircularProgressIndicator());
           }
 
-          // Box が取得できたら snapshot.data に入っているので取り出す
-          final box = snapshot.data!;
-
-          // Hive Box から保存されている本のリストを取得
+          final box = snapshot.data!; // 非同期でアクセスしたデータを取得
           final books = box.values.toList();
           if (books.isEmpty) {
             debugPrint('からです');
           }
           return Wrap(
-            spacing: 8.0, // アイテム間の横方向のスペース
-            runSpacing: 8.0, // 行間のスペース
+            spacing: 8.0,
+            runSpacing: 8.0,
             children:
                 books.map((book) {
                   return InkWell(
@@ -43,7 +39,34 @@ class _IndexPageState extends State<Index> {
                       showDialog(
                         context: context,
                         builder: (context) {
-                          return AlertDialog(title: Text('著者:${book.author}'));
+                          return AlertDialog(
+                            title: Text(book.title),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                Text('著者:${book.author}'),
+                                Text('説明: 説明が入ります'), // 本の説明を入れる(まだカラムを未実装)
+                              ],
+                            ),
+                            actions: [
+                              TextButton(
+                                child: Text("Cancel"),
+                                onPressed: () => Navigator.pop(context),
+                              ),
+                              TextButton(
+                                child: Text("Show"),
+                                onPressed:
+                                    () => {
+                                      Navigator.pop(context),
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) => Show(),
+                                        ),
+                                      ),
+                                    },
+                              ),
+                            ],
+                          );
                         },
                       );
                     },
