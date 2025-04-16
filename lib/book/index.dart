@@ -60,7 +60,8 @@ class _IndexPageState extends State<Index> {
                                       Navigator.pop(context),
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
-                                          builder: (context) => Show(),
+                                          builder:
+                                              (context) => Show(book: book),
                                         ),
                                       ),
                                     },

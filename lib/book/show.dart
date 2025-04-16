@@ -1,8 +1,10 @@
+import 'package:bookshelf/book/model/book.dart';
 import 'package:flutter/material.dart';
 
 class Show extends StatefulWidget {
-  const Show({super.key});
+  final Book book;
 
+  const Show({super.key, required this.book});
   @override
   State<Show> createState() => _ShowPageState();
 }

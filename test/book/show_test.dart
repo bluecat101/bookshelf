@@ -18,6 +18,11 @@ Future<void> createDummyData() async {
   bookshelf.add(book);
 }
 
+Future<Book> getBook() async {
+  final bookshelf = await Hive.openBox<Book>('book');
+  return bookshelf.values.first;
+}
+
 // Hiveを初期化する
 initHive() {
   final hiveDirPath = 'test/book/model/hive_test';
@@ -43,35 +48,40 @@ initHive() {
 void main() {
   initHive(); // Hiveの初期化
   testWidgets('タイトルのフォームが機能するかの確認', (WidgetTester tester) async {
-    await tester.pumpWidget(MaterialApp(home: Show()));
+    final book = await getBook();
+    await tester.pumpWidget(MaterialApp(home: Show(book: book)));
     final titleField = find.widgetWithText(TextFormField, 'title');
     await tester.enterText(titleField, 'second title');
     expect(find.text('second title'), findsOneWidget);
     expect(find.text('前回の入力: sample title'), findsOneWidget);
   });
   testWidgets('著者のフォームが機能するかの確認', (WidgetTester tester) async {
-    await tester.pumpWidget(MaterialApp(home: Show()));
+    final book = await getBook();
+    await tester.pumpWidget(MaterialApp(home: Show(book: book)));
     final authorField = find.widgetWithText(TextFormField, 'author');
     await tester.enterText(authorField, 'second author');
     expect(find.text('second author'), findsOneWidget);
     expect(find.text('前回の入力: sample author'), findsOneWidget);
   });
   testWidgets('ページのフォームが機能するかの確認', (WidgetTester tester) async {
-    await tester.pumpWidget(MaterialApp(home: Show()));
+    final book = await getBook();
+    await tester.pumpWidget(MaterialApp(home: Show(book: book)));
     final pageField = find.widgetWithText(TextFormField, 'page');
     await tester.enterText(pageField, '2');
     expect(find.text('2'), findsOneWidget);
     expect(find.text('前回の入力: 1'), findsOneWidget);
   });
   testWidgets('高さのフォームが機能するかの確認', (WidgetTester tester) async {
-    await tester.pumpWidget(MaterialApp(home: Show()));
+    final book = await getBook();
+    await tester.pumpWidget(MaterialApp(home: Show(book: book)));
     final heightField = find.widgetWithText(TextFormField, 'height');
     await tester.enterText(heightField, '2');
     expect(find.text('2'), findsOneWidget);
     expect(find.text('前回の入力: 1'), findsOneWidget);
   });
   testWidgets('厚さのフォームが機能するかの確認', (WidgetTester tester) async {
-    await tester.pumpWidget(MaterialApp(home: Show()));
+    final book = await getBook();
+    await tester.pumpWidget(MaterialApp(home: Show(book: book)));
     final thicknessField = find.widgetWithText(TextFormField, 'thickness');
     await tester.enterText(thicknessField, '2');
     expect(find.text('2'), findsOneWidget);
@@ -84,7 +94,8 @@ void main() {
     final page = '2';
     final height = '2';
     final thickness = '2';
-    await tester.pumpWidget(MaterialApp(home: Show()));
+    final book = await getBook();
+    await tester.pumpWidget(MaterialApp(home: Show(book: book)));
     final titleField = find.widgetWithText(TextFormField, 'title');
     final authorField = find.widgetWithText(TextFormField, 'author');
     final pageField = find.widgetWithText(TextFormField, 'page');
