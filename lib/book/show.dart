@@ -130,14 +130,22 @@ class _ShowPageState extends State<Show> {
               'thickness',
               book.thickness.toString(),
             ),
-            ElevatedButton(
-              child: Text('本棚に追加する'),
-              onPressed: () async {
-                if (await _onSubmit(book)) {
-                  if (!mounted) return;
-                }
-                ;
-              },
+            Row(
+              children: [
+                ElevatedButton(
+                  child: Text('戻る'),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                ElevatedButton(
+                  child: Text('更新する'),
+                  onPressed: () async {
+                    if (await _onSubmit(book)) {
+                      if (!mounted) return;
+                      Navigator.pop(context);
+                    }
+                  },
+                ),
+              ],
             ),
           ],
         ),
