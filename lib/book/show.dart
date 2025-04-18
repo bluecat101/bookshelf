@@ -12,11 +12,37 @@ class Show extends StatefulWidget {
 
 class _ShowPageState extends State<Show> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _authorController = TextEditingController();
-  final TextEditingController _pageController = TextEditingController();
-  final TextEditingController _heightController = TextEditingController();
-  final TextEditingController _thicknessController = TextEditingController();
+  late TextEditingController _titleController;
+  late TextEditingController _authorController;
+  late TextEditingController _pageController;
+  late TextEditingController _heightController;
+  late TextEditingController _thicknessController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _titleController = TextEditingController(text: widget.book.title);
+    _authorController = TextEditingController(text: widget.book.author);
+    _pageController = TextEditingController(text: widget.book.page.toString());
+    _heightController = TextEditingController(
+      text: widget.book.height.toString(),
+    );
+    _thicknessController = TextEditingController(
+      text: widget.book.thickness.toString(),
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _titleController.dispose();
+    _authorController.dispose();
+    _pageController.dispose();
+    _heightController.dispose();
+    _thicknessController.dispose();
+  }
+
   Future<bool> _onSubmit(Book book) async {
     if (_formKey.currentState!.validate()) {
       book.title = _titleController.text;
@@ -24,26 +50,56 @@ class _ShowPageState extends State<Show> {
       book.page = int.parse(_pageController.text);
       book.height = double.parse(_heightController.text);
       book.thickness = double.parse(_thicknessController.text);
-      final bookshelf = await Hive.openBox<Book>('book');
-      // await book.save();
-      bookshelf.add(book);
+      await book.save();
       return true;
     }
     return false;
   }
 
+  String? getHelperTextForComparison(String lastText, String currentText) {
+    // 数値比較のための共通関数
+    String? compareTextValues<T>(T lastValue, T currentValue) {
+      return lastValue != currentValue ? '前回の内容: $lastValue' : null;
+    }
+
+    // 数値（int, double）と文字列を比較
+    if (int.tryParse(lastText) != null && int.tryParse(currentText) != null) {
+      return compareTextValues<int>(
+        int.parse(lastText),
+        int.parse(currentText),
+      );
+    } else if (double.tryParse(lastText) != null &&
+        double.tryParse(currentText) != null) {
+      return compareTextValues<double>(
+        double.parse(lastText),
+        double.parse(currentText),
+      );
+    }
+
+    // 文字列として直接比較
+    return compareTextValues<String>(lastText, currentText);
+  }
+
   TextFormField generateTextFormField(
+    // initValueを関数内で定義すると、controller.textと一緒になるため、外部で定義して渡す
     TextEditingController controller,
     String label,
-    initValue,
+    String initValue,
   ) {
     return TextFormField(
-      initialValue: initValue,
+      controller: controller,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
         labelText: label,
-        helperText: controller.text != initValue ? '前回の内容: $initValue' : null,
+        helperStyle: TextStyle(color: const Color.fromARGB(255, 25, 104, 233)),
+        helperText: getHelperTextForComparison(
+          initValue.toString(),
+          controller.text,
+        ),
       ),
+      onChanged: (text) {
+        setState(() {});
+      },
       validator: (value) => Book.validateTitle(value),
     );
   }
@@ -59,18 +115,26 @@ class _ShowPageState extends State<Show> {
           children: [
             generateTextFormField(_titleController, 'title', book.title),
             generateTextFormField(_authorController, 'author', book.author),
-            generateTextFormField(_pageController, 'page', book.page),
-            generateTextFormField(_heightController, 'height', book.height),
+            generateTextFormField(
+              _pageController,
+              'page',
+              book.page.toString(),
+            ),
+            generateTextFormField(
+              _heightController,
+              'height',
+              book.height.toString(),
+            ),
             generateTextFormField(
               _thicknessController,
               'thickness',
-              book.thickness,
+              book.thickness.toString(),
             ),
             ElevatedButton(
               child: Text('本棚に追加する'),
               onPressed: () async {
-                if (await _onSubmit()) {
-                  if (!mounted) return; // 🔒 context が使える状態か確認
+                if (await _onSubmit(book)) {
+                  if (!mounted) return;
                 }
                 ;
               },

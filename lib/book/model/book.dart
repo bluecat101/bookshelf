@@ -6,8 +6,8 @@ part 'book.g.dart';
 
 //モデルごとの識別子の設定
 @HiveType(typeId: 1)
-class Book {
-  const Book({
+class Book extends HiveObject {
+  Book({
     required this.title,
     required this.author,
     required this.page,
@@ -16,23 +16,23 @@ class Book {
     this.image,
   });
   @HiveField(0)
-  final String title;
+  String title;
 
   @HiveField(1)
-  final String author;
+  String author;
 
   @HiveField(2)
-  final int page;
+  int page;
 
   @HiveField(3)
-  final double height;
+  double height;
 
   @HiveField(4)
-  final double thickness;
+  double thickness;
 
   // 数が増えると画像をここに保存せずにpathを保存し呼び出す。
   @HiveField(5)
-  final Uint8List? image;
+  Uint8List? image;
 
   static String? validateTitle(String? value) {
     if (value == null || value.isEmpty) return 'タイトルを入力してください';
