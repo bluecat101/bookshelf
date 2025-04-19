@@ -43,14 +43,28 @@ class _ShowPageState extends State<Show> {
     _thicknessController.dispose();
   }
 
-  Future<void> updateBook(Book updatedBook) async {
+  Future<(Box<Book>, int)> fetchBookIndex(searchedBook) async {
     final box = await Hive.openBox<Book>('book');
-    final index = box.values.toList().indexWhere(
-      (Book book) => book == updatedBook,
+    return (
+      box,
+      box.values.toList().indexWhere((Book book) => book == searchedBook),
     );
+  }
+
+  Future<void> updateBook(Book updatedBook) async {
+    final (box, index) = await fetchBookIndex(updatedBook);
     if (index != -1) {
       await box.put(index, updatedBook);
     }
+  }
+
+  Future<bool> _deleteBook(Book deletedBook) async {
+    final (box, index) = await fetchBookIndex(deletedBook);
+    if (index != -1) {
+      box.delete(index);
+      return true;
+    }
+    return false;
   }
 
   Future<bool> _onSubmit(Book book) async {
@@ -145,6 +159,15 @@ class _ShowPageState extends State<Show> {
                 ElevatedButton(
                   child: Text('戻る'),
                   onPressed: () => Navigator.pop(context),
+                ),
+                ElevatedButton(
+                  child: Text('削除する'),
+                  onPressed: () async {
+                    if (await _deleteBook(book)) {
+                      if (!mounted) return;
+                      Navigator.pop(context);
+                    }
+                  },
                 ),
                 ElevatedButton(
                   child: Text('更新する'),
