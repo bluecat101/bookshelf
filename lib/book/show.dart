@@ -44,12 +44,12 @@ class _ShowPageState extends State<Show> {
   }
 
   Future<void> updateBook(Book updatedBook) async {
-    final bookshelf = await Hive.openBox<Book>('bookshelf');
-    final index = bookshelf.values.toList().indexWhere(
+    final box = await Hive.openBox<Book>('book');
+    final index = box.values.toList().indexWhere(
       (Book book) => book == updatedBook,
     );
     if (index != -1) {
-      await bookshelf.put(index, updatedBook);
+      await box.put(index, updatedBook);
     }
   }
 
