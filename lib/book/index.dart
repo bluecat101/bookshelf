@@ -55,16 +55,17 @@ class _IndexPageState extends State<Index> {
                               ),
                               TextButton(
                                 child: Text("Show"),
-                                onPressed:
-                                    () => {
-                                      Navigator.pop(context),
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder:
-                                              (context) => Show(book: book),
-                                        ),
-                                      ),
-                                    },
+                                onPressed: () async {
+                                  Navigator.pop(context);
+                                  await Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) {
+                                        return Show(book: book);
+                                      },
+                                    ),
+                                  );
+                                  setState(() {});
+                                },
                               ),
                             ],
                           );
