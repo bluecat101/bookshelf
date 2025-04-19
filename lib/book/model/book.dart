@@ -6,7 +6,7 @@ part 'book.g.dart';
 
 //モデルごとの識別子の設定
 @HiveType(typeId: 1)
-class Book extends HiveObject {
+class Book {
   Book({
     required this.title,
     required this.author,

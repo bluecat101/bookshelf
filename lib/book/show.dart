@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
 class Show extends StatefulWidget {
-  Book book;
+  final Book book;
 
-  Show({super.key, required this.book});
+  const Show({super.key, required this.book});
   @override
   State<Show> createState() => _ShowPageState();
 }
@@ -43,6 +43,16 @@ class _ShowPageState extends State<Show> {
     _thicknessController.dispose();
   }
 
+  Future<void> updateBook(Book updatedBook) async {
+    final bookshelf = await Hive.openBox<Book>('bookshelf');
+    final index = bookshelf.values.toList().indexWhere(
+      (Book book) => book == updatedBook,
+    );
+    if (index != -1) {
+      await bookshelf.put(index, updatedBook);
+    }
+  }
+
   Future<bool> _onSubmit(Book book) async {
     if (_formKey.currentState!.validate()) {
       book.title = _titleController.text;
@@ -50,7 +60,7 @@ class _ShowPageState extends State<Show> {
       book.page = int.parse(_pageController.text);
       book.height = double.parse(_heightController.text);
       book.thickness = double.parse(_thicknessController.text);
-      await book.save();
+      await updateBook(book);
       return true;
     }
     return false;
