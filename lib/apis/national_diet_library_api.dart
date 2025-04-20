@@ -6,13 +6,13 @@ class NdlBook {
   final String title;
   final String author;
   final String link;
-  final int isbn;
+  final String imageUrl;
 
   const NdlBook({
     required this.title,
     required this.author,
     required this.link,
-    required this.isbn,
+    required this.imageUrl,
   });
 }
 
@@ -38,7 +38,7 @@ List<NdlBook> parseNdlBooks(String xmlString, String searchedTitle) {
 
     final identifiers = item.findElements('dc:identifier');
     debugPrint('identifiers: $identifiers');
-    int? isbn;
+    String? imageUrl;
 
     for (final id in identifiers) {
       final typeAttr = id.getAttribute('xsi:type');
@@ -46,14 +46,15 @@ List<NdlBook> parseNdlBooks(String xmlString, String searchedTitle) {
       if (typeAttr == 'dcndl:ISBN') {
         final isbnStr = id.innerText;
         debugPrint('isbn: $isbnStr');
-        isbn = int.tryParse(isbnStr.replaceAll('-', ''));
+        final isbn = int.tryParse(isbnStr.replaceAll('-', ''));
+        imageUrl = 'https://ndlsearch.ndl.go.jp/thumbnail/$isbn.jpg';
         break;
       }
     }
 
-    if (isbn != null) {
+    if (imageUrl != null) {
       ndlBooks.add(
-        NdlBook(title: title, author: author, link: link, isbn: isbn),
+        NdlBook(title: title, author: author, link: link, imageUrl: imageUrl),
       );
     }
   }

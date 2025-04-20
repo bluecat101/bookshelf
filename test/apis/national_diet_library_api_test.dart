@@ -19,7 +19,7 @@ void main() {
       expect(oneBook.title, isNotNull);
       expect(oneBook.author, isNotNull);
       expect(oneBook.link, isNotNull);
-      expect(oneBook.isbn, isNotNull);
+      expect(oneBook.imageUrl, isNotNull);
     });
   });
 }
