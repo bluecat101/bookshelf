@@ -51,18 +51,14 @@ List<NdlBook> parseNdlBooks(String xmlString, String searchedTitle) {
         break;
       }
     }
-
     if (imageUrl != null) {
       ndlBooks.add(
         NdlBook(title: title, author: author, link: link, imageUrl: imageUrl),
       );
     }
   }
-
   return ndlBooks;
 }
-
-void parseBooksThroughNationalDietLibrary(String responseBody) {}
 
 Future<List<NdlBook>> fetchBookInfoThroughNationalDietLibrary(
   String title,
@@ -70,9 +66,7 @@ Future<List<NdlBook>> fetchBookInfoThroughNationalDietLibrary(
   final encodedTitle = Uri.encodeFull(title);
   final url =
       'https://ndlsearch.ndl.go.jp/api/opensearch?cnt=100&title=$encodedTitle';
-
   final response = await http.get(Uri.parse(url));
-
   if (response.statusCode == 200) {
     return parseNdlBooks(response.body, title);
   } else {
