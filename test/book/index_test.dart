@@ -14,7 +14,7 @@ Future<void> createDummyData() async {
     author: 'sample author',
     page: 1,
     height: 1,
-    thickness: 1,
+    width: 1,
   );
   bookshelf.add(book);
 }

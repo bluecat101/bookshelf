@@ -18,10 +18,10 @@ class BookAdapter extends TypeAdapter<Book> {
     };
     return Book(
       title: fields[0] as String,
-      author: fields[1] as String,
-      page: fields[2] as int,
-      height: fields[3] as double,
-      thickness: fields[4] as double,
+      author: fields[1] as String?,
+      page: fields[2] as int?,
+      height: fields[3] as int?,
+      width: fields[4] as int?,
       image: fields[5] as Uint8List?,
     );
   }
@@ -39,7 +39,7 @@ class BookAdapter extends TypeAdapter<Book> {
       ..writeByte(3)
       ..write(obj.height)
       ..writeByte(4)
-      ..write(obj.thickness)
+      ..write(obj.width)
       ..writeByte(5)
       ..write(obj.image);
   }

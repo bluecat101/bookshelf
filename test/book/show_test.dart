@@ -13,7 +13,7 @@ Future<void> createDummyData() async {
     author: 'sample author',
     page: 1,
     height: 1,
-    thickness: 1,
+    width: 1,
   );
   bookshelf.add(book);
 }
@@ -82,8 +82,8 @@ void main() {
   testWidgets('厚さのフォームが機能するかの確認', (WidgetTester tester) async {
     final book = await getBook();
     await tester.pumpWidget(MaterialApp(home: Show(book: book)));
-    final thicknessField = find.widgetWithText(TextFormField, 'thickness');
-    await tester.enterText(thicknessField, '2');
+    final widthField = find.widgetWithText(TextFormField, 'width');
+    await tester.enterText(widthField, '2');
     expect(find.text('2'), findsOneWidget);
     expect(find.text('前回の入力: 1'), findsOneWidget);
   });
@@ -93,19 +93,19 @@ void main() {
     final author = 'second author';
     final page = '2';
     final height = '2';
-    final thickness = '2';
+    final width = '2';
     final book = await getBook();
     await tester.pumpWidget(MaterialApp(home: Show(book: book)));
     final titleField = find.widgetWithText(TextFormField, 'title');
     final authorField = find.widgetWithText(TextFormField, 'author');
     final pageField = find.widgetWithText(TextFormField, 'page');
     final heightField = find.widgetWithText(TextFormField, 'height');
-    final thicknessField = find.widgetWithText(TextFormField, 'thickness');
+    final widthField = find.widgetWithText(TextFormField, 'width');
     await tester.enterText(titleField, title);
     await tester.enterText(authorField, author);
     await tester.enterText(pageField, page);
     await tester.enterText(heightField, height);
-    await tester.enterText(thicknessField, thickness);
+    await tester.enterText(widthField, width);
     await tester.tap(find.byType(ElevatedButton)); // 更新ボタンをクリック
     await tester.pumpAndSettle();
     final bookshelf = await Hive.openBox<Book>('book');
@@ -114,6 +114,6 @@ void main() {
     expect(books[0].author, author);
     expect(books[0].page, page);
     expect(books[0].height, height);
-    expect(books[0].thickness, thickness);
+    expect(books[0].width, width);
   });
 }

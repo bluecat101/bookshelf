@@ -63,21 +63,21 @@ void main() {
 
   group('厚さ バリデーションチェック', () {
     test('厚さが空ならエラー', () {
-      final result = Book.validateThickness(null);
+      final result = Book.validateWidth(null);
       expect(result, '数字を入れてください');
     });
     test('厚さが数字でないならエラー', () {
-      final result = Book.validateThickness('string.thickness'); // 小数点の.を使用
+      final result = Book.validateWidth('string.width'); // 小数点の.を使用
       expect(result, '数字を入れてください');
     });
 
     test('厚さの値が0以下ならエラー', () {
-      final result = Book.validateThickness("0");
+      final result = Book.validateWidth("0");
       expect(result, '1以上にしてください');
     });
 
     test('厚さの値が正しければ null を返す', () {
-      final result = Book.validateThickness('1.1');
+      final result = Book.validateWidth('1.1');
       expect(result, null);
     });
   });

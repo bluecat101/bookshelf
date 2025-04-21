@@ -12,7 +12,7 @@ class Book {
     this.author,
     this.page,
     this.height,
-    this.thickness,
+    this.width,
     this.image,
   });
   @HiveField(0)
@@ -25,10 +25,10 @@ class Book {
   int? page;
 
   @HiveField(3)
-  double? height;
+  int? height;
 
   @HiveField(4)
-  double? thickness;
+  int? width;
 
   // 数が増えると画像をここに保存せずにpathを保存し呼び出す。
   @HiveField(5)
@@ -47,15 +47,15 @@ class Book {
   }
 
   static String? validateHeight(String? value) {
-    if (value == null || double.tryParse(value) == null) return '数字を入れてください';
-    final parsedValue = double.parse(value);
+    if (value == null || int.tryParse(value) == null) return '数字を入れてください';
+    final parsedValue = int.parse(value);
     if (parsedValue < 1) return '1以上にしてください';
     return null;
   }
 
-  static String? validateThickness(String? value) {
-    if (value == null || double.tryParse(value) == null) return '数字を入れてください';
-    final parsedValue = double.parse(value);
+  static String? validateWidth(String? value) {
+    if (value == null || int.tryParse(value) == null) return '数字を入れてください';
+    final parsedValue = int.parse(value);
     if (parsedValue < 1) return '1以上にしてください';
     return null;
   }

@@ -12,12 +12,12 @@ Future<void> enterInvalidFormInput(WidgetTester tester) async {
   final authorField = find.widgetWithText(TextFormField, 'author');
   final pageField = find.widgetWithText(TextFormField, 'page');
   final heightField = find.widgetWithText(TextFormField, 'height');
-  final thicknessField = find.widgetWithText(TextFormField, 'thickness');
+  final widthField = find.widgetWithText(TextFormField, 'width');
   await tester.enterText(titleField, 'sample title');
   await tester.enterText(authorField, 'sample author');
   await tester.enterText(pageField, 'sample page');
   await tester.enterText(heightField, 'sample height');
-  await tester.enterText(thicknessField, 'sample thickness');
+  await tester.enterText(widthField, 'sample width');
 }
 
 // 成功時の入力フォーム
@@ -27,18 +27,18 @@ Future<void> enterValidFormInput(
   String author = "sample author",
   String page = "1",
   String height = "1",
-  String thickness = "1",
+  String width = "1",
 }) async {
   final titleField = find.widgetWithText(TextFormField, 'title');
   final authorField = find.widgetWithText(TextFormField, 'author');
   final pageField = find.widgetWithText(TextFormField, 'page');
   final heightField = find.widgetWithText(TextFormField, 'height');
-  final thicknessField = find.widgetWithText(TextFormField, 'thickness');
+  final widthField = find.widgetWithText(TextFormField, 'width');
   await tester.enterText(titleField, title);
   await tester.enterText(authorField, author);
   await tester.enterText(pageField, page);
   await tester.enterText(heightField, height);
-  await tester.enterText(thicknessField, thickness);
+  await tester.enterText(widthField, width);
 }
 
 // Hiveを初期化する
@@ -90,8 +90,8 @@ void main() {
   });
   testWidgets('厚さのフォームが機能するかの確認', (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(home: NewBook()));
-    final thicknessField = find.widgetWithText(TextFormField, 'thickness');
-    await tester.enterText(thicknessField, '1');
+    final widthField = find.widgetWithText(TextFormField, 'width');
+    await tester.enterText(widthField, '1');
     expect(find.text('1'), findsOneWidget);
   });
   testWidgets('バリデーションの確認', (WidgetTester tester) async {
@@ -108,7 +108,7 @@ void main() {
     final author = "sample author";
     final page = 1;
     final height = 1;
-    final thickness = 1;
+    final width = 1;
     await tester.pumpWidget(MaterialApp(home: NewBook()));
     await enterValidFormInput(
       tester,
@@ -116,7 +116,7 @@ void main() {
       author: author,
       page: page.toString(),
       height: height.toString(),
-      thickness: thickness.toString(),
+      width: width.toString(),
     );
     await tester.tap(find.byType(ElevatedButton));
     await tester.pumpAndSettle();
@@ -126,7 +126,7 @@ void main() {
     expect(books[0].author, author);
     expect(books[0].page, page);
     expect(books[0].height, height);
-    expect(books[0].thickness, thickness);
+    expect(books[0].width, width);
   });
   testWidgets('(失敗時)submitボタンを押してもダイアログが表示されない', (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(home: NewBook()));

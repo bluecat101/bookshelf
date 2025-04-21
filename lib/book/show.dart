@@ -16,7 +16,7 @@ class _ShowPageState extends State<Show> {
   late TextEditingController _authorController;
   late TextEditingController _pageController;
   late TextEditingController _heightController;
-  late TextEditingController _thicknessController;
+  late TextEditingController _widthController;
 
   @override
   void initState() {
@@ -28,8 +28,8 @@ class _ShowPageState extends State<Show> {
     _heightController = TextEditingController(
       text: widget.book.height.toString(),
     );
-    _thicknessController = TextEditingController(
-      text: widget.book.thickness.toString(),
+    _widthController = TextEditingController(
+      text: widget.book.width.toString(),
     );
   }
 
@@ -40,7 +40,7 @@ class _ShowPageState extends State<Show> {
     _authorController.dispose();
     _pageController.dispose();
     _heightController.dispose();
-    _thicknessController.dispose();
+    _widthController.dispose();
   }
 
   Future<(Box<Book>, int)> fetchBookIndex(searchedBook) async {
@@ -72,8 +72,8 @@ class _ShowPageState extends State<Show> {
       book.title = _titleController.text;
       book.author = _authorController.text;
       book.page = int.parse(_pageController.text);
-      book.height = double.parse(_heightController.text);
-      book.thickness = double.parse(_thicknessController.text);
+      book.height = int.parse(_heightController.text);
+      book.width = int.parse(_widthController.text);
       await updateBook(book);
       return true;
     }
@@ -86,17 +86,11 @@ class _ShowPageState extends State<Show> {
       return lastValue != currentValue ? '前回の内容: $lastValue' : null;
     }
 
-    // 数値（int, double）と文字列を比較
+    // 数値（int, int）と文字列を比較
     if (int.tryParse(lastText) != null && int.tryParse(currentText) != null) {
       return compareTextValues<int>(
         int.parse(lastText),
         int.parse(currentText),
-      );
-    } else if (double.tryParse(lastText) != null &&
-        double.tryParse(currentText) != null) {
-      return compareTextValues<double>(
-        double.parse(lastText),
-        double.parse(currentText),
       );
     }
 
@@ -150,9 +144,9 @@ class _ShowPageState extends State<Show> {
               book.height?.toString(),
             ),
             generateTextFormField(
-              _thicknessController,
-              'thickness',
-              book.thickness?.toString(),
+              _widthController,
+              'width',
+              book.width?.toString(),
             ),
             Row(
               children: [
