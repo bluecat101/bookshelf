@@ -14,27 +14,13 @@ class NewBook extends StatefulWidget {
 class _NewBookPageState extends State<NewBook> {
   final _formKey = GlobalKey<FormState>();
   final _titleKey = GlobalKey<FormFieldState>();
-  final _authorKey = GlobalKey<FormFieldState>();
-  final _pageKey = GlobalKey<FormFieldState>();
-  final _heightKey = GlobalKey<FormFieldState>();
-  final _thicknessKey = GlobalKey<FormFieldState>();
 
   Future<bool> _onSubmit() async {
     if (_formKey.currentState!.validate()) {
       final title =
           _titleKey.currentState!.value!; // validateの中でnullチェックをしているため!を使用
-      final author = _authorKey.currentState!.value!;
-      final page = int.parse(_pageKey.currentState!.value!);
-      final height = double.parse(_heightKey.currentState!.value!);
-      final thickness = double.parse(_thicknessKey.currentState!.value!);
       final bookshelf = await Hive.openBox<Book>('book');
-      final book = Book(
-        title: title,
-        author: author,
-        page: page,
-        height: height,
-        thickness: thickness,
-      );
+      final book = Book(title: title);
       bookshelf.add(book);
       return true;
     }
@@ -54,30 +40,6 @@ class _NewBookPageState extends State<NewBook> {
               autovalidateMode: AutovalidateMode.onUserInteraction,
               decoration: const InputDecoration(labelText: "title"),
               validator: (value) => Book.validateTitle(value),
-            ),
-            TextFormField(
-              key: _authorKey,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              decoration: const InputDecoration(labelText: "author"),
-              validator: (value) => Book.validateAuthor(value),
-            ),
-            TextFormField(
-              key: _pageKey,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              decoration: const InputDecoration(labelText: "page"),
-              validator: (value) => Book.validatePage(value),
-            ),
-            TextFormField(
-              key: _heightKey,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              decoration: const InputDecoration(labelText: "height"),
-              validator: (value) => Book.validateHeight(value),
-            ),
-            TextFormField(
-              key: _thicknessKey,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              decoration: const InputDecoration(labelText: "thickness"),
-              validator: (value) => Book.validateThickness(value),
             ),
             ElevatedButton(
               child: Text('本棚に追加する'),

@@ -9,26 +9,26 @@ part 'book.g.dart';
 class Book {
   Book({
     required this.title,
-    required this.author,
-    required this.page,
-    required this.height,
-    required this.thickness,
+    this.author,
+    this.page,
+    this.height,
+    this.thickness,
     this.image,
   });
   @HiveField(0)
   String title;
 
   @HiveField(1)
-  String author;
+  String? author;
 
   @HiveField(2)
-  int page;
+  int? page;
 
   @HiveField(3)
-  double height;
+  double? height;
 
   @HiveField(4)
-  double thickness;
+  double? thickness;
 
   // 数が増えると画像をここに保存せずにpathを保存し呼び出す。
   @HiveField(5)
@@ -36,11 +36,6 @@ class Book {
 
   static String? validateTitle(String? value) {
     if (value == null || value.isEmpty) return 'タイトルを入力してください';
-    return null;
-  }
-
-  static String? validateAuthor(String? value) {
-    if (value == null || value.isEmpty) return '著者を入力してください';
     return null;
   }
 

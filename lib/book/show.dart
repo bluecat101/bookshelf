@@ -108,7 +108,7 @@ class _ShowPageState extends State<Show> {
     // initValueを関数内で定義すると、controller.textと一緒になるため、外部で定義して渡す
     TextEditingController controller,
     String label,
-    String initValue,
+    String? initValue,
   ) {
     return TextFormField(
       controller: controller,
@@ -142,17 +142,17 @@ class _ShowPageState extends State<Show> {
             generateTextFormField(
               _pageController,
               'page',
-              book.page.toString(),
+              book.page?.toString(),
             ),
             generateTextFormField(
               _heightController,
               'height',
-              book.height.toString(),
+              book.height?.toString(),
             ),
             generateTextFormField(
               _thicknessController,
               'thickness',
-              book.thickness.toString(),
+              book.thickness?.toString(),
             ),
             Row(
               children: [

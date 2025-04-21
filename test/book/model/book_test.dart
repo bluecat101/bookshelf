@@ -18,21 +18,7 @@ void main() {
       expect(result, null);
     });
   });
-  group('著者  バリデーションチェック', () {
-    test('著者が空ならエラー', () {
-      final result = Book.validateAuthor(null);
-      expect(result, '著者を入力してください');
-    });
-    test('著者が空文字ならエラー', () {
-      final result = Book.validateAuthor('');
-      expect(result, '著者を入力してください');
-    });
 
-    test('著者が正しければ null を返す', () {
-      final result = Book.validateAuthor('sample author');
-      expect(result, null);
-    });
-  });
   group('ページ バリデーションチェック', () {
     test('ページが空ならエラー', () {
       final result = Book.validatePage(null);
