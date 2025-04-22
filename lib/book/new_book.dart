@@ -161,7 +161,11 @@ class _NewBookPageState extends State<NewBook> {
                           },
                           child: Row(
                             children: [
-                              Text('画像'),
+                              Image.network(
+                                book.imageUrl,
+                                height: 100,
+                                fit: BoxFit.fitHeight,
+                              ),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
