@@ -9,26 +9,26 @@ part 'book.g.dart';
 class Book {
   Book({
     required this.title,
-    this.author,
-    this.page,
-    this.height,
-    this.width,
+    required this.author,
+    required this.page,
+    required this.height,
+    required this.width,
     this.image,
   });
   @HiveField(0)
   String title;
 
   @HiveField(1)
-  String? author;
+  String author;
 
   @HiveField(2)
-  int? page;
+  int page;
 
   @HiveField(3)
-  int? height;
+  int height;
 
   @HiveField(4)
-  int? width;
+  int width;
 
   // 数が増えると画像をここに保存せずにpathを保存し呼び出す。
   @HiveField(5)

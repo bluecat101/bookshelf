@@ -18,10 +18,10 @@ class BookAdapter extends TypeAdapter<Book> {
     };
     return Book(
       title: fields[0] as String,
-      author: fields[1] as String?,
-      page: fields[2] as int?,
-      height: fields[3] as int?,
-      width: fields[4] as int?,
+      author: fields[1] as String,
+      page: fields[2] as int,
+      height: fields[3] as int,
+      width: fields[4] as int,
       image: fields[5] as Uint8List?,
     );
   }
