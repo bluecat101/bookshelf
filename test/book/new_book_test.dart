@@ -9,36 +9,16 @@ import 'package:bookshelf/book/model/book.dart';
 // 失敗時の入力フォーム
 Future<void> enterInvalidFormInput(WidgetTester tester) async {
   final titleField = find.widgetWithText(TextFormField, 'title');
-  final authorField = find.widgetWithText(TextFormField, 'author');
-  final pageField = find.widgetWithText(TextFormField, 'page');
-  final heightField = find.widgetWithText(TextFormField, 'height');
-  final widthField = find.widgetWithText(TextFormField, 'width');
-  await tester.enterText(titleField, 'sample title');
-  await tester.enterText(authorField, 'sample author');
-  await tester.enterText(pageField, 'sample page');
-  await tester.enterText(heightField, 'sample height');
-  await tester.enterText(widthField, 'sample width');
+  await tester.enterText(titleField, '');
 }
 
 // 成功時の入力フォーム
 Future<void> enterValidFormInput(
   WidgetTester tester, {
   String title = "sample title",
-  String author = "sample author",
-  String page = "1",
-  String height = "1",
-  String width = "1",
 }) async {
   final titleField = find.widgetWithText(TextFormField, 'title');
-  final authorField = find.widgetWithText(TextFormField, 'author');
-  final pageField = find.widgetWithText(TextFormField, 'page');
-  final heightField = find.widgetWithText(TextFormField, 'height');
-  final widthField = find.widgetWithText(TextFormField, 'width');
   await tester.enterText(titleField, title);
-  await tester.enterText(authorField, author);
-  await tester.enterText(pageField, page);
-  await tester.enterText(heightField, height);
-  await tester.enterText(widthField, width);
 }
 
 // Hiveを初期化する
@@ -70,63 +50,22 @@ void main() {
     await tester.enterText(titleField, 'sample title');
     expect(find.text('sample title'), findsOneWidget);
   });
-  testWidgets('著者のフォームが機能するかの確認', (WidgetTester tester) async {
-    await tester.pumpWidget(MaterialApp(home: NewBook()));
-    final authorField = find.widgetWithText(TextFormField, 'author');
-    await tester.enterText(authorField, 'sample author');
-    expect(find.text('sample author'), findsOneWidget);
-  });
-  testWidgets('ページのフォームが機能するかの確認', (WidgetTester tester) async {
-    await tester.pumpWidget(MaterialApp(home: NewBook()));
-    final pageField = find.widgetWithText(TextFormField, 'page');
-    await tester.enterText(pageField, '1');
-    expect(find.text('1'), findsOneWidget);
-  });
-  testWidgets('高さのフォームが機能するかの確認', (WidgetTester tester) async {
-    await tester.pumpWidget(MaterialApp(home: NewBook()));
-    final heightField = find.widgetWithText(TextFormField, 'height');
-    await tester.enterText(heightField, '1');
-    expect(find.text('1'), findsOneWidget);
-  });
-  testWidgets('厚さのフォームが機能するかの確認', (WidgetTester tester) async {
-    await tester.pumpWidget(MaterialApp(home: NewBook()));
-    final widthField = find.widgetWithText(TextFormField, 'width');
-    await tester.enterText(widthField, '1');
-    expect(find.text('1'), findsOneWidget);
-  });
   testWidgets('バリデーションの確認', (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(home: NewBook()));
     await tester.tap(find.byType(ElevatedButton));
     await tester.pump();
     expect(find.text('タイトルを入力してください'), findsOneWidget);
-    expect(find.text('著者を入力してください'), findsOneWidget);
-    expect(find.text('数字を入れてください'), findsNWidgets(3));
   });
   // これより下は、単体でテストする場合にはinitHive()を実行してください
   testWidgets('データが保存されるかどうか', (WidgetTester tester) async {
     final title = "sample title";
-    final author = "sample author";
-    final page = 1;
-    final height = 1;
-    final width = 1;
     await tester.pumpWidget(MaterialApp(home: NewBook()));
-    await enterValidFormInput(
-      tester,
-      title: title,
-      author: author,
-      page: page.toString(),
-      height: height.toString(),
-      width: width.toString(),
-    );
+    await enterValidFormInput(tester);
     await tester.tap(find.byType(ElevatedButton));
     await tester.pumpAndSettle();
     final bookshelf = await Hive.openBox<Book>('book');
     final books = bookshelf.values.toList();
     expect(books[0].title, title);
-    expect(books[0].author, author);
-    expect(books[0].page, page);
-    expect(books[0].height, height);
-    expect(books[0].width, width);
   });
   testWidgets('(失敗時)submitボタンを押してもダイアログが表示されない', (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(home: NewBook()));

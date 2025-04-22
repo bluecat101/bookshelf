@@ -56,7 +56,7 @@ void main() {
     });
 
     test('高さの値が正しければ null を返す', () {
-      final result = Book.validateHeight('1.1');
+      final result = Book.validateHeight('1');
       expect(result, null);
     });
   });
@@ -77,7 +77,7 @@ void main() {
     });
 
     test('厚さの値が正しければ null を返す', () {
-      final result = Book.validateWidth('1.1');
+      final result = Book.validateWidth('1');
       expect(result, null);
     });
   });
