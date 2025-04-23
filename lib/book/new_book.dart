@@ -79,115 +79,121 @@ class _NewBookPageState extends State<NewBook> {
               decoration: const InputDecoration(labelText: "title"),
               validator: (value) => Book.validateTitle(value),
             ),
-            Column(
-              children:
-                  searchedBooks
-                      .map(
-                        (book) => TextButton(
-                          onPressed: () async {
-                            final size = await fetchBookSize(book);
-                            if (size.width != null &&
-                                size.height != null &&
-                                size.page != null) {
-                              addBook(
-                                book,
-                                size.width!,
-                                size.height!,
-                                size.page!,
-                              );
-                              return;
-                            }
-                            final _widthController = TextEditingController(
-                              text: size.width?.toString(),
-                            );
-                            final _heightController = TextEditingController(
-                              text: size.height?.toString(),
-                            );
-                            final _pageController = TextEditingController(
-                              text: size.page?.toString(),
-                            );
-                            showDialog(
-                              context: context,
-                              builder: (_) {
-                                return AlertDialog(
-                                  actions: <Widget>[
-                                    Row(
-                                      children: returnTextFiledToNullColumn(
-                                        size.width,
-                                        size.height,
-                                        size.page,
-                                        _widthController,
-                                        _heightController,
-                                        _pageController,
-                                      ),
-                                    ),
-                                    // ボタン領域
-                                    TextButton(
-                                      child: Text("追加する"),
-                                      onPressed:
-                                          () => {
-                                            if ([
-                                              _widthController.text,
-                                              _heightController.text,
-                                              _pageController.text,
-                                            ].every((e) => e != ""))
-                                              {
-                                                addBook(
-                                                  book,
-                                                  size.width!,
-                                                  size.height!,
-                                                  size.page!,
-                                                ),
-                                                Navigator.pop(context),
-                                                Navigator.of(
-                                                  context,
-                                                ).pushReplacement(
-                                                  PageRouteBuilder(
-                                                    pageBuilder:
-                                                        (_, __, ___) =>
-                                                            NewBook(),
-                                                    transitionDuration:
-                                                        Duration
-                                                            .zero, // アニメーションをゼロに
-                                                  ),
-                                                ),
-                                              },
-                                          },
-                                    ),
-                                  ],
+            Expanded(
+              child: ListView(
+                shrinkWrap: true,
+                // physics: NeverScrollableScrollPhysics(),
+                // Column(
+                children:
+                    searchedBooks
+                        .map(
+                          (book) => TextButton(
+                            onPressed: () async {
+                              final size = await fetchBookSize(book);
+                              if (size.width != null &&
+                                  size.height != null &&
+                                  size.page != null) {
+                                addBook(
+                                  book,
+                                  size.width!,
+                                  size.height!,
+                                  size.page!,
                                 );
-                              },
-                            );
-                          },
-                          child: Row(
-                            children: [
-                              Image.network(
-                                book.imageUrl,
-                                height: 100,
-                                fit: BoxFit.fitHeight,
-                              ),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      book.title,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                    ),
-                                    Text(
-                                      book.author,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                    ),
-                                  ],
+                                return;
+                              }
+                              final _widthController = TextEditingController(
+                                text: size.width?.toString(),
+                              );
+                              final _heightController = TextEditingController(
+                                text: size.height?.toString(),
+                              );
+                              final _pageController = TextEditingController(
+                                text: size.page?.toString(),
+                              );
+                              showDialog(
+                                context: context,
+                                builder: (_) {
+                                  return AlertDialog(
+                                    actions: <Widget>[
+                                      Row(
+                                        children: returnTextFiledToNullColumn(
+                                          size.width,
+                                          size.height,
+                                          size.page,
+                                          _widthController,
+                                          _heightController,
+                                          _pageController,
+                                        ),
+                                      ),
+                                      // ボタン領域
+                                      TextButton(
+                                        child: Text("追加する"),
+                                        onPressed:
+                                            () => {
+                                              if ([
+                                                _widthController.text,
+                                                _heightController.text,
+                                                _pageController.text,
+                                              ].every((e) => e != ""))
+                                                {
+                                                  addBook(
+                                                    book,
+                                                    size.width!,
+                                                    size.height!,
+                                                    size.page!,
+                                                  ),
+                                                  Navigator.pop(context),
+                                                  Navigator.of(
+                                                    context,
+                                                  ).pushReplacement(
+                                                    PageRouteBuilder(
+                                                      pageBuilder:
+                                                          (_, __, ___) =>
+                                                              NewBook(),
+                                                      transitionDuration:
+                                                          Duration
+                                                              .zero, // アニメーションをゼロに
+                                                    ),
+                                                  ),
+                                                },
+                                            },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                            child: Row(
+                              children: [
+                                Image.network(
+                                  book.imageUrl,
+                                  height: 100,
+                                  fit: BoxFit.fitHeight,
                                 ),
-                              ),
-                            ],
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        book.title,
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                      ),
+                                      Text(
+                                        book.author,
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      )
-                      .toList(),
+                        )
+                        .toList(),
+              ),
             ),
             ElevatedButton(
               child: Text("検索する"),
