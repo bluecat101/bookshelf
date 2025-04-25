@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:bookshelf/book/model/book.dart';
-import 'index.dart';
 import 'package:bookshelf/apis/national_diet_library_api.dart';
+import 'dart:math';
 
 class NewBook extends StatefulWidget {
   const NewBook({super.key});
@@ -29,7 +29,7 @@ class _NewBookPageState extends State<NewBook> {
     bookshelf.add(book);
   }
 
-  List<TextField> returnTextFiledToNullColumn(
+  List<Container> returnTextFiledToNullColumn(
     int? width,
     int? height,
     int? page,
@@ -38,7 +38,7 @@ class _NewBookPageState extends State<NewBook> {
     TextEditingController pageController,
   ) {
     List<String> label = [];
-    List<TextField> TextFields = [];
+    List<Container> containers = [];
     TextField generateTextField(
       TextEditingController controller,
       String label,
@@ -50,19 +50,39 @@ class _NewBookPageState extends State<NewBook> {
       );
     }
 
+    final containerWidth =
+        min(MediaQuery.of(context).size.width / 2 * 0.75, 100).toDouble();
     if (width == null) {
       label.add('width');
-      TextFields.add(generateTextField(widthController, 'width'));
+      containers.add(
+        Container(
+          width: containerWidth,
+          child: generateTextField(widthController, 'width'),
+        ),
+      );
     }
     if (height == null) {
       label.add('height');
-      TextFields.add(generateTextField(heightController, 'height'));
+      containers.add(
+        Container(
+          width: containerWidth,
+          child: generateTextField(heightController, 'height'),
+        ),
+      );
     }
     if (page == null) {
       label.add('page');
-      TextFields.add(generateTextField(pageController, 'page'));
+      containers.add(
+        Container(
+          width: containerWidth,
+          child: generateTextField(pageController, 'page'),
+        ),
+      );
     }
-    return TextFields;
+    debugPrint(containers.toString());
+    debugPrint(width.toString() + height.toString() + page.toString());
+
+    return containers;
   }
 
   @override
@@ -89,7 +109,7 @@ class _NewBookPageState extends State<NewBook> {
                         .map(
                           (book) => TextButton(
                             onPressed: () async {
-                              final size = await fetchBookSize(book);
+                              var size = await fetchBookSize(book);
                               if (size.width != null &&
                                   size.height != null &&
                                   size.page != null) {
@@ -116,47 +136,53 @@ class _NewBookPageState extends State<NewBook> {
                                   return AlertDialog(
                                     actions: <Widget>[
                                       Row(
-                                        children: returnTextFiledToNullColumn(
-                                          size.width,
-                                          size.height,
-                                          size.page,
-                                          _widthController,
-                                          _heightController,
-                                          _pageController,
-                                        ),
-                                      ),
-                                      // ボタン領域
-                                      TextButton(
-                                        child: Text("追加する"),
-                                        onPressed:
-                                            () => {
-                                              if ([
-                                                _widthController.text,
-                                                _heightController.text,
-                                                _pageController.text,
-                                              ].every((e) => e != ""))
-                                                {
-                                                  addBook(
-                                                    book,
-                                                    size.width!,
-                                                    size.height!,
-                                                    size.page!,
-                                                  ),
-                                                  Navigator.pop(context),
-                                                  Navigator.of(
-                                                    context,
-                                                  ).pushReplacement(
-                                                    PageRouteBuilder(
-                                                      pageBuilder:
-                                                          (_, __, ___) =>
-                                                              NewBook(),
-                                                      transitionDuration:
-                                                          Duration
-                                                              .zero, // アニメーションをゼロに
-                                                    ),
-                                                  ),
+                                        children: [
+                                          Column(
+                                            children:
+                                                returnTextFiledToNullColumn(
+                                                  size.width,
+                                                  size.height,
+                                                  size.page,
+                                                  _widthController,
+                                                  _heightController,
+                                                  _pageController,
+                                                ),
+                                          ),
+
+                                          // ボタン領域
+                                          TextButton(
+                                            child: Text("追加する"),
+                                            onPressed:
+                                                () => {
+                                                  if ([
+                                                    _widthController.text,
+                                                    _heightController.text,
+                                                    _pageController.text,
+                                                  ].every((e) => e != ""))
+                                                    {
+                                                      addBook(
+                                                        book,
+                                                        size.width!,
+                                                        size.height!,
+                                                        size.page!,
+                                                      ),
+                                                      Navigator.pop(context),
+                                                      Navigator.of(
+                                                        context,
+                                                      ).pushReplacement(
+                                                        PageRouteBuilder(
+                                                          pageBuilder:
+                                                              (_, __, ___) =>
+                                                                  NewBook(),
+                                                          transitionDuration:
+                                                              Duration
+                                                                  .zero, // アニメーションをゼロに
+                                                        ),
+                                                      ),
+                                                    },
                                                 },
-                                            },
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   );
