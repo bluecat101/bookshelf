@@ -17,22 +17,20 @@ class _NewBookPageState extends State<NewBook> {
   final _titleKey = GlobalKey<FormFieldState>();
   List<NdlBook> searchedBooks = [];
 
-  void addBook(NdlBook ndlBook, int width, int height, int page) async {
+  void addBook(NdlBook ndlBook, BookSize bookSize) async {
     final bookshelf = await Hive.openBox<Book>('book');
     final book = Book(
       title: ndlBook.title,
       author: ndlBook.author,
-      width: width,
-      height: height,
-      page: page,
+      width: bookSize.width!,
+      height: bookSize.height!,
+      page: bookSize.pages!,
     );
     bookshelf.add(book);
   }
 
   List<Container> returnTextFiledToNullColumn(
-    int? width,
-    int? height,
-    int? page,
+    BookSize bookSize,
     TextEditingController widthController,
     TextEditingController heightController,
     TextEditingController pageController,
@@ -52,7 +50,7 @@ class _NewBookPageState extends State<NewBook> {
 
     final containerWidth =
         min(MediaQuery.of(context).size.width / 2 * 0.75, 100).toDouble();
-    if (width == null) {
+    if (bookSize.width == null) {
       label.add('width');
       containers.add(
         Container(
@@ -61,7 +59,7 @@ class _NewBookPageState extends State<NewBook> {
         ),
       );
     }
-    if (height == null) {
+    if (bookSize.height == null) {
       label.add('height');
       containers.add(
         Container(
@@ -70,7 +68,7 @@ class _NewBookPageState extends State<NewBook> {
         ),
       );
     }
-    if (page == null) {
+    if (bookSize.pages == null) {
       label.add('page');
       containers.add(
         Container(
@@ -80,7 +78,11 @@ class _NewBookPageState extends State<NewBook> {
       );
     }
     debugPrint(containers.toString());
-    debugPrint(width.toString() + height.toString() + page.toString());
+    debugPrint(
+      bookSize.width.toString() +
+          bookSize.height.toString() +
+          bookSize.pages.toString(),
+    );
 
     return containers;
   }
@@ -107,26 +109,19 @@ class _NewBookPageState extends State<NewBook> {
                         .map(
                           (book) => TextButton(
                             onPressed: () async {
-                              var size = await fetchBookSize(book);
-                              if (size.width != null &&
-                                  size.height != null &&
-                                  size.page != null) {
-                                addBook(
-                                  book,
-                                  size.width!,
-                                  size.height!,
-                                  size.page!,
-                                );
+                              var bookSize = await fetchBookSize(book);
+                              if (!bookSize.isAllNull) {
+                                addBook(book, bookSize);
                                 return;
                               }
                               final _widthController = TextEditingController(
-                                text: size.width?.toString(),
+                                text: bookSize.width?.toString(),
                               );
                               final _heightController = TextEditingController(
-                                text: size.height?.toString(),
+                                text: bookSize.height?.toString(),
                               );
                               final _pageController = TextEditingController(
-                                text: size.page?.toString(),
+                                text: bookSize.pages?.toString(),
                               );
                               showDialog(
                                 context: context,
@@ -138,9 +133,7 @@ class _NewBookPageState extends State<NewBook> {
                                           Column(
                                             children:
                                                 returnTextFiledToNullColumn(
-                                                  size.width,
-                                                  size.height,
-                                                  size.page,
+                                                  bookSize,
                                                   _widthController,
                                                   _heightController,
                                                   _pageController,
@@ -158,12 +151,7 @@ class _NewBookPageState extends State<NewBook> {
                                                     _pageController.text,
                                                   ].every((e) => e != ""))
                                                     {
-                                                      addBook(
-                                                        book,
-                                                        size.width!,
-                                                        size.height!,
-                                                        size.page!,
-                                                      ),
+                                                      addBook(book, bookSize),
                                                       Navigator.pop(context),
                                                       Navigator.of(
                                                         context,

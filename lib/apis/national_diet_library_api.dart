@@ -2,7 +2,7 @@ import 'package:xml/xml.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
 
-const bookSize = {
+const bookSizeFromHeight = {
   15: {"width": 8},
   19: {"width": 13},
   21: {"width": 15},
@@ -23,6 +23,16 @@ class NdlBook {
     required this.link,
     required this.imageUrl,
   });
+}
+
+class BookSize {
+  final int? width;
+  final int? height;
+  final int? pages;
+
+  const BookSize({this.width, this.height, this.pages});
+
+  bool get isAllNull => width == null && height == null && pages == null;
 }
 
 List<NdlBook> parseNdlBooks(String xmlString, String searchedTitle) {
@@ -66,7 +76,7 @@ List<NdlBook> parseNdlBooks(String xmlString, String searchedTitle) {
   return ndlBooks;
 }
 
-({int? width, int? height, int? page}) parseNdlBookSize(String htmlString) {
+BookSize parseNdlBookSize(String htmlString) {
   final document = parse(htmlString);
   // 大きさ等が書いてある
   final elements = document.getElementsByClassName(
@@ -77,15 +87,12 @@ List<NdlBook> parseNdlBooks(String xmlString, String searchedTitle) {
   final regex = RegExp(r'(\d+)p\s*;\s*(\d+)cm');
   final match = regex.firstMatch(text.toString());
   if (match != null) {
-    final page = int.parse(match.group(1)!);
+    final pages = int.parse(match.group(1)!);
     final height = int.parse(match.group(2)!);
-    if (bookSize[height] == null) {
-      return (width: null, height: height, page: page);
-    }
-    final width = bookSize[height]?['width'];
-    return (width: width, height: height, page: page);
+    final width = bookSizeFromHeight[height]?['width'];
+    return BookSize(width: width, height: height, pages: pages);
   }
-  return (width: null, height: null, page: null);
+  return BookSize();
 }
 
 Future<List<NdlBook>> fetchBookInfoThroughNationalDietLibrary(
@@ -102,13 +109,10 @@ Future<List<NdlBook>> fetchBookInfoThroughNationalDietLibrary(
   }
 }
 
-Future<({int? width, int? height, int? page})> fetchBookSize(
-  NdlBook ndlBook,
-) async {
+Future<BookSize> fetchBookSize(NdlBook ndlBook) async {
   final response = await http.get(Uri.parse(ndlBook.link));
   if (response.statusCode == 200) {
-    final size = parseNdlBookSize(response.body);
-    return (width: size.height!, height: size.width!, page: size.page!);
+    return parseNdlBookSize(response.body);
   } else {
     throw Exception('Failed to fetch data');
   }
