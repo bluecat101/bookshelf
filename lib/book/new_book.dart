@@ -102,8 +102,6 @@ class _NewBookPageState extends State<NewBook> {
             Expanded(
               child: ListView(
                 shrinkWrap: true,
-                // physics: NeverScrollableScrollPhysics(),
-                // Column(
                 children:
                     searchedBooks
                         .map(
@@ -234,55 +232,6 @@ class _NewBookPageState extends State<NewBook> {
                 setState(() {});
               },
             ),
-            // ElevatedButton(
-            //   child: Text('本棚に追加する'),
-            //   onPressed: () async {
-            //     if (await _onSubmit()) {
-            //       if (!mounted) return; // 🔒 context が使える状態か確認
-
-            //       // 追加する or 本棚を見に行くのダイアログの表示
-            //       showDialog(
-            //         context: context,
-            //         builder: (_) {
-            //           return AlertDialog(
-            //             actions: <Widget>[
-            //               // ボタン領域
-            //               TextButton(
-            //                 child: Text("追加する"),
-            //                 onPressed:
-            //                     () => {
-            //                       Navigator.pop(context),
-            //                       Navigator.of(context).pushReplacement(
-            //                         PageRouteBuilder(
-            //                           pageBuilder: (_, __, ___) => NewBook(),
-            //                           transitionDuration:
-            //                               Duration.zero, // アニメーションをゼロに
-            //                         ),
-            //                       ),
-            //                     },
-            //               ),
-
-            //               TextButton(
-            //                 child: Text("本棚を見に行く"),
-            //                 onPressed:
-            //                     () => {
-            //                       Navigator.pop(context),
-            //                       Navigator.of(context).push(
-            //                         MaterialPageRoute(
-            //                           builder: (context) => Index(),
-            //                         ),
-            //                       ),
-            //                     },
-            //               ),
-            //             ],
-            //           );
-            //         },
-            //       );
-            //     }
-            //     // Form配下の全てのTextFormFieldのonSavedプロパティが対象（呼び出し）
-            //   },
-            //   // },
-            // ),
           ],
         ),
       ),
