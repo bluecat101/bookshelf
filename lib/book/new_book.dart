@@ -202,6 +202,12 @@ class _NewBookPageState extends State<NewBook> {
                           (book) => TextButton(
                             onPressed:
                                 () => _handleBookButtonPress(context, book),
+                            style: TextButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.zero, // ホバー時に周りを丸くしない
+                              ),
+                            ),
                             child: _buildBookRow(book),
                           ),
                         )
