@@ -1,3 +1,4 @@
+import 'package:bookshelf/book/index.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -31,11 +32,11 @@ class _NewBookPageState extends State<NewBook> {
   }
 
   // Indexに遷移する関数
-  void _navigateToIndex() {
+  void _navigateToIndex(BuildContext context) {
     Navigator.pop(context);
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
-        pageBuilder: (_, __, ___) => NewBook(),
+        pageBuilder: (_, __, ___) => Index(),
         transitionDuration: Duration.zero, // 遷移時のアニメーションをなくす
       ),
     );
@@ -50,7 +51,7 @@ class _NewBookPageState extends State<NewBook> {
 
     if (!bookSize.isAllNull) {
       _addBook(book, bookSize);
-      _navigateToIndex();
+      _navigateToIndex(context);
       return;
     }
 
@@ -59,7 +60,7 @@ class _NewBookPageState extends State<NewBook> {
       showDialog(
         context: context,
         builder: (_) {
-          return _buildDialog(book, bookSize);
+          return _buildDialog(book, bookSize, context);
         },
       );
     }
@@ -99,7 +100,11 @@ class _NewBookPageState extends State<NewBook> {
   }
 
   // bookSizeの値がnullの場合に入力用ダイアログ
-  AlertDialog _buildDialog(book, BookSize bookSize) {
+  AlertDialog _buildDialog(
+    NdlBook book,
+    BookSize bookSize,
+    BuildContext context,
+  ) {
     // bookSizeがnullのものの入力用TextField
     List<SizedBox> buildTextFields(
       BookSize bookSize,
@@ -170,7 +175,7 @@ class _NewBookPageState extends State<NewBook> {
                     if (widthController.text.isNotEmpty &&
                         heightController.text.isNotEmpty &&
                         pagesController.text.isNotEmpty)
-                      {_addBook(book, bookSize), _navigateToIndex()},
+                      {_addBook(book, bookSize), _navigateToIndex(context)},
                   },
             ),
           ],
