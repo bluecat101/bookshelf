@@ -14,14 +14,16 @@ void main() {
   group('[正常系]fetchBookInfoThroughNationalDietLibraryのテスト', () {
     test('apiを取得後NdlBookの型である', () async {
       final testBookTitle = '達人プログラマ';
-      final books = await fetchBookInfoThroughNationalDietLibrary(
+      final bookFetcher = BookFetcher();
+      final books = await bookFetcher.fetchBookInfoThroughNationalDietLibrary(
         testBookTitle,
       );
       expect(books, isA<List<NdlBook>>());
     });
     test('値が入っている', () async {
       final testBookTitle = '達人プログラマ';
-      final books = await fetchBookInfoThroughNationalDietLibrary(
+      final bookFetcher = BookFetcher();
+      final books = await bookFetcher.fetchBookInfoThroughNationalDietLibrary(
         testBookTitle,
       );
       final oneBook = books.first;
@@ -33,7 +35,8 @@ void main() {
   });
   group('[正常系]fetchBookSizeのテスト', () {
     test('apiを取得後NdlBookの型である', () async {
-      final size = await fetchBookSize(getSampleBook());
+      final bookFetcher = BookFetcher();
+      final size = await bookFetcher.fetchBookSize(getSampleBook());
       expect(size, isA<({int? width, int? height, int? page})>());
     });
   });

@@ -47,7 +47,8 @@ class _NewBookPageState extends State<NewBook> {
     BuildContext context,
     NdlBook book,
   ) async {
-    var bookSize = await fetchBookSize(book);
+    final bookFetcher = BookFetcher();
+    var bookSize = await bookFetcher.fetchBookSize(book);
 
     if (!bookSize.isAllNull) {
       _addBook(book, bookSize);
@@ -226,9 +227,9 @@ class _NewBookPageState extends State<NewBook> {
                   return;
                 }
                 final title = _titleKey.currentState!.value!;
-                searchedBooks = await fetchBookInfoThroughNationalDietLibrary(
-                  title,
-                );
+                final bookFetcher = BookFetcher();
+                searchedBooks = await bookFetcher
+                    .fetchBookInfoThroughNationalDietLibrary(title);
                 setState(() {});
               },
             ),
