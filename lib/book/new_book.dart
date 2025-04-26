@@ -68,7 +68,7 @@ class _NewBookPageState extends State<NewBook> {
   Widget setBookImage(NdlBook book) {
     if (book.imageUrl == null) {
       return Container(
-        width: 80,
+        width: 70,
         height: 100,
         alignment: Alignment.center,
         decoration: BoxDecoration(
