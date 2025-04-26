@@ -44,6 +44,10 @@ Future<bool> existUrl(String url) async {
   }
 }
 
+bool isUniqueTitle(String newTitle, List<NdlBook> books) {
+  return books.every((book) => book.title != newTitle);
+}
+
 Future<List<NdlBook>> parseNdlBooks(
   String xmlString,
   String searchedTitle,
@@ -59,11 +63,14 @@ Future<List<NdlBook>> parseNdlBooks(
     final title = item.getElement('title')?.innerText;
     final author = item.getElement('author')?.innerText;
     final link = item.getElement('link')?.innerText;
+
+    // 既に検索済みのタイトルと一致している場合もcontinue
     if (category == null ||
         title == null ||
         searchedTitle.contains(title) ||
         author == null ||
-        link == null) {
+        link == null ||
+        !isUniqueTitle(title, ndlBooks)) {
       continue;
     }
 
