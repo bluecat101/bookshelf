@@ -65,11 +65,26 @@ class _NewBookPageState extends State<NewBook> {
     }
   }
 
+  Widget setBookImage(NdlBook book) {
+    if (book.imageUrl == null) {
+      return Container(
+        width: 80,
+        height: 100,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.black, width: 1),
+        ),
+        child: Text(book.title, style: TextStyle(fontSize: 7)),
+      );
+    }
+    return Image.network(book.imageUrl!, height: 100, fit: BoxFit.fitHeight);
+  }
+
   //表示する1つの本を作成する
   Widget _buildBookRow(NdlBook book) {
     return Row(
       children: [
-        Image.network(book.imageUrl, height: 100, fit: BoxFit.fitHeight),
+        setBookImage(book),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

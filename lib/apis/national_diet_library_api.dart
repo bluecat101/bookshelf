@@ -15,13 +15,13 @@ class NdlBook {
   final String title;
   final String author;
   final String link;
-  final String imageUrl;
+  final String? imageUrl;
 
   const NdlBook({
     required this.title,
     required this.author,
     required this.link,
-    required this.imageUrl,
+    this.imageUrl,
   });
 }
 
@@ -35,7 +35,19 @@ class BookSize {
   bool get isAllNull => width == null && height == null && pages == null;
 }
 
-List<NdlBook> parseNdlBooks(String xmlString, String searchedTitle) {
+Future<bool> existUrl(String url) async {
+  try {
+    final response = await http.head(Uri.parse(url));
+    return response.statusCode == 200;
+  } catch (_) {
+    return false;
+  }
+}
+
+Future<List<NdlBook>> parseNdlBooks(
+  String xmlString,
+  String searchedTitle,
+) async {
   final document = XmlDocument.parse(xmlString);
   final items = document.findAllElements('item');
   final List<NdlBook> ndlBooks = [];
@@ -67,11 +79,12 @@ List<NdlBook> parseNdlBooks(String xmlString, String searchedTitle) {
         break;
       }
     }
-    if (imageUrl != null) {
-      ndlBooks.add(
-        NdlBook(title: title, author: author, link: link, imageUrl: imageUrl),
-      );
+    if (imageUrl != null && !(await existUrl(imageUrl))) {
+      imageUrl = null;
     }
+    ndlBooks.add(
+      NdlBook(title: title, author: author, link: link, imageUrl: imageUrl),
+    );
   }
   return ndlBooks;
 }
@@ -103,7 +116,7 @@ Future<List<NdlBook>> fetchBookInfoThroughNationalDietLibrary(
       'https://ndlsearch.ndl.go.jp/api/opensearch?cnt=100&title=$encodedTitle';
   final response = await http.get(Uri.parse(url));
   if (response.statusCode == 200) {
-    return parseNdlBooks(response.body, title);
+    return await parseNdlBooks(response.body, title);
   } else {
     throw Exception('Failed to fetch data');
   }
