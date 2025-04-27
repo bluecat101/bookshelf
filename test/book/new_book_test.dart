@@ -58,19 +58,17 @@ void initHive() {
   setUpAll(() async {
     Hive.init(hiveDirPath);
     Hive.registerAdapter(BookAdapter());
-    // Boxを開く
     await Hive.openBox<Book>('book');
     // DI
     getIt.registerLazySingleton<BookFetcher>(() => MockBookFetcher());
   });
 
-  // 終了後にHiveを閉じる
   tearDownAll(() async {
+    // Hiveを閉じる
     final testDir = Directory(hiveDirPath);
     if (testDir.existsSync()) {
-      testDir.deleteSync(recursive: true); // ← 完全削除
+      testDir.deleteSync(recursive: true);
     }
-    // DI
     getIt.reset();
   });
 }
@@ -250,22 +248,41 @@ void main() {
     expect(find.byType(Index), findsOneWidget);
   });
 
-  // testWidgets('[失敗時]検索ボタンを押しても本が表示されない', (WidgetTester tester) async {
-  //   await tester.pumpWidget(MaterialApp(home: NewBook()));
-  //   await enterInvalidFormInput(tester);
-  //   await tester.tap(find.byType(ElevatedButton));
-  //   await tester.pumpAndSettle();
-  //   expect(find.byType(TextButton), findsNothing);
-  // });
-  // testWidgets('[失敗時]本のサイズを入力せずに追加ボタンを押すとIndexに遷移しない', (
-  //   WidgetTester tester,
-  // ) async {
-  //   await tester.pumpWidget(MaterialApp(home: NewBook()));
-  //   await enterValidFormInput(tester);
-  //   await tester.tap(find.widgetWithText(ElevatedButton, '検索する'));
-  //   await tester.pumpAndSettle();
-  //   final firstButtonFinder = find.byType(TextButton).at(0);
-  //   await tester.tap(firstButtonFinder);
-  //   await tester.pumpAndSettle();
-  testWidgets('[失敗時]本のサイズの未入力時、本の追加に失敗する', (WidgetTester tester) async {});
+  testWidgets('[失敗時]検索ボタンを押しても本が表示されない', (WidgetTester tester) async {
+    await tester.pumpWidget(MaterialApp(home: NewBook()));
+    await enterInvalidFormInput(tester);
+    await tester.tap(find.byType(ElevatedButton));
+    await tester.pumpAndSettle();
+    expect(find.byType(TextButton), findsNothing);
+  });
+  testWidgets('[失敗時]本のサイズの未入力の追加ボタンのタップ時、本の追加に失敗する', (
+    WidgetTester tester,
+  ) async {
+    final bookshelf = await Hive.openBox<Book>('book');
+    List<Book> books = bookshelf.values.toList();
+    final expectedBooksLen = books.length;
+    await prepareSearchResult(
+      tester: tester,
+      funcMockBookSize: mockEmptyBookSize(),
+    ); // 本のサイズは未取得
+    await tapFirstBook(tester);
+    await tapAddBookButton(tester);
+    // Assert
+    books = bookshelf.values.toList();
+    // 登録された本がない
+    expect(books.length, expectedBooksLen);
+  });
+  testWidgets('[失敗時]本のサイズの未入力の追加ボタンのタップ時、Indexに遷移しない', (
+    WidgetTester tester,
+  ) async {
+    await prepareSearchResult(
+      tester: tester,
+      funcMockBookSize: mockEmptyBookSize(),
+    ); // 本のサイズは未取得
+    await tapFirstBook(tester);
+    await tapAddBookButton(tester);
+
+    // Assert
+    expect(find.byType(Index), findsNothing);
+  });
 }
