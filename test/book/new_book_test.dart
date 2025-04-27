@@ -11,12 +11,19 @@ import 'package:bookshelf/book/model/book.dart';
 import 'package:mockito/mockito.dart';
 import 'new_book_test.mocks.dart';
 
-NdlBook mockNdlBook(String title, String author) {
+NdlBook mockNdlBook({
+  String title = 'sample title',
+  String author = 'sample author',
+  String link = 'sample url',
+}) {
   // linkはテストしないので定数とする
-  return NdlBook(title: title, author: author, link: 'sample link');
+  return NdlBook(title: title, author: author, link: link);
 }
 
-Future<List<NdlBook>> mockNdlBooks(NdlBook book) async {
+Future<List<NdlBook>> mockNdlBooks(NdlBook? book) async {
+  if (book == null) {
+    return [mockNdlBook()];
+  }
   return [book];
 }
 
@@ -24,7 +31,11 @@ Future<BookSize> mockEmptyBookSize() async {
   return BookSize();
 }
 
-Future<BookSize> mockValidBookSize(int width, int height, int pages) async {
+Future<BookSize> mockValidBookSize({
+  int width = 1,
+  int height = 1,
+  int pages = 1,
+}) async {
   return BookSize(width: width, height: height, pages: pages);
 }
 
@@ -64,6 +75,52 @@ void initHive() {
   });
 }
 
+Future<void> prepareSearchResult({
+  required WidgetTester tester,
+  NdlBook? book,
+  Future<BookSize>? funcMockBookSize,
+}) async {
+  book ??= mockNdlBook();
+  funcMockBookSize ??= mockValidBookSize();
+  // DI
+  final mockBookFetcher = getIt<BookFetcher>();
+  when(
+    mockBookFetcher.fetchBookInfoThroughNationalDietLibrary(book.title),
+  ).thenAnswer((_) async => await mockNdlBooks(book));
+  when(
+    mockBookFetcher.fetchBookSize(book),
+  ).thenAnswer((_) => funcMockBookSize!);
+
+  await tester.pumpWidget(MaterialApp(home: NewBook()));
+  await enterValidFormInput(tester, book.title);
+  await tester.tap(find.widgetWithText(ElevatedButton, '検索する'));
+  await tester.pumpAndSettle();
+}
+
+Future<void> tapFirstBook(WidgetTester tester) async {
+  final firstTextButton = find.byType(TextButton).at(0);
+  await tester.tap(firstTextButton);
+  await tester.pumpAndSettle();
+}
+
+Future<void> enterBookSize({
+  required WidgetTester tester,
+  BookSize? bookSize,
+}) async {
+  bookSize ??= await mockValidBookSize();
+  final widthField = find.widgetWithText(TextField, 'width');
+  final heightField = find.widgetWithText(TextField, 'height');
+  final pagesField = find.widgetWithText(TextField, 'pages');
+  await tester.enterText(widthField, bookSize.width.toString());
+  await tester.enterText(heightField, bookSize.height.toString());
+  await tester.enterText(pagesField, bookSize.pages.toString());
+}
+
+Future<void> tapAddBookButton(WidgetTester tester) async {
+  await tester.tap(find.widgetWithText(TextButton, '追加する'));
+  await tester.pumpAndSettle();
+}
+
 @GenerateMocks([BookFetcher])
 void main() {
   initHive(); // Hiveの初期化
@@ -80,86 +137,65 @@ void main() {
     await tester.pump();
     expect(find.text('タイトルを入力してください'), findsOneWidget);
   });
+  testWidgets('[成功時]検索ボタンのタップ時、本の情報が表示される', (WidgetTester tester) async {
+    final title = 'sample title';
+    final author = 'sample author';
+    final book = mockNdlBook(title: title, author: author);
+    await prepareSearchResult(tester: tester, book: book);
 
-  testWidgets('[成功時]検索ボタンを押したときに本が表示、クリック後にIndexに遷移する(本のサイズが元々入っている)', (
-    WidgetTester tester,
-  ) async {
-    // DI
-    final mockBookFetcher = getIt<BookFetcher>();
-    // Mock
+    // Assert
+    expect(find.byType(TextButton), findsOneWidget); // 本用のボタンがあるか
+    expect(
+      find.descendant(
+        of: find.byType(TextButton),
+        matching: find.textContaining(title),
+      ),
+      findsAtLeast(2),
+    ); // タイトルが表示されているか(画像がないときは文字を表示するため2つ以上とする)
+    expect(find.textContaining(author), findsOneWidget); // 著者があるか
+  });
+  testWidgets('[成功時]検索結果のタップ時、DBに正しく保存される', (WidgetTester tester) async {
     final title = 'sample title';
     final author = 'sample author';
     final width = 1;
     final height = 1;
     final pages = 1;
-    final book = mockNdlBook(title, author);
-
-    when(
-      mockBookFetcher.fetchBookInfoThroughNationalDietLibrary(title),
-    ).thenAnswer((_) async => await mockNdlBooks(book));
-    when(
-      mockBookFetcher.fetchBookSize(book),
-    ).thenAnswer((_) => mockValidBookSize(width, height, pages));
-    // Assert
-    // 検索ボタンのクリック
-    await tester.pumpWidget(MaterialApp(home: NewBook()));
-    await enterValidFormInput(tester, title);
-    await tester.tap(find.widgetWithText(ElevatedButton, '検索する'));
-    await tester.pumpAndSettle();
-    // 本の表示
-    expect(find.byType(TextButton), findsAtLeast(1));
-    expect(
-      find.textContaining(title),
-      findsAtLeast(2),
-    ); // formの入力欄、画像がないときは文字を表示するため2つ以上とする
-    expect(find.textContaining(author), findsOneWidget); // 著者があるか
-    expect(
-      find.widgetWithText(TextButton, title),
-      findsAtLeast(1),
-    ); // 画像がない場合にTextButtonの中にtitleが2つ表示されることがあるため、1以上とする
-
+    final book = mockNdlBook(title: title, author: author);
+    await prepareSearchResult(
+      tester: tester,
+      book: book,
+      funcMockBookSize: mockValidBookSize(
+        width: width,
+        height: height,
+        pages: pages,
+      ),
+    );
+    // Act
     // 本の追加
-    final firstTextButton = find.byType(TextButton).at(0);
-    await tester.tap(firstTextButton);
-    await tester.pumpAndSettle();
+    await tapFirstBook(tester);
     final bookshelf = await Hive.openBox<Book>('book');
     final createdBook = bookshelf.values.toList().first;
-    // 本が正しく追加されている
+    // 登録された本の内容が正しい
     expect(createdBook.title, title);
     expect(createdBook.author, author);
     expect(createdBook.width, width);
     expect(createdBook.height, height);
     expect(createdBook.page, pages);
-
-    expect(find.byType(Index), findsOneWidget); // 遷移先があっている
   });
-  testWidgets('[成功時]本のサイズを入力するダイアログが表示され入力後Indexに遷移する', (
-    WidgetTester tester,
-  ) async {
-    // DI
-    final mockBookFetcher = getIt<BookFetcher>();
-    // Mock
-    final title = 'sample title';
-    final author = 'sample author';
-    final book = mockNdlBook(title, author);
-    when(
-      mockBookFetcher.fetchBookInfoThroughNationalDietLibrary(title),
-    ).thenAnswer((_) async => await mockNdlBooks(book));
-    when(
-      mockBookFetcher.fetchBookSize(book),
-    ).thenAnswer((_) => mockEmptyBookSize());
+  testWidgets('[成功時]検索結果のタップ時、Indexに遷移する', (WidgetTester tester) async {
+    await prepareSearchResult(tester: tester);
+    await tapFirstBook(tester);
     // Assert
-    // 検索ボタンのクリック
-    await tester.pumpWidget(MaterialApp(home: NewBook()));
-    await enterValidFormInput(tester, title);
-    await tester.tap(find.widgetWithText(ElevatedButton, '検索する'));
-    await tester.pumpAndSettle();
+    expect(find.byType(Index), findsOneWidget);
+  });
 
-    // 本の追加
-    final firstTextButton = find.byType(TextButton).at(0);
-    await tester.tap(firstTextButton);
-    await tester.pumpAndSettle();
-    // ダイアログのテスト
+  testWidgets('[成功時]本のサイズの未取得時、入力欄を含むダイアログが表示される', (WidgetTester tester) async {
+    await prepareSearchResult(
+      tester: tester,
+      funcMockBookSize: mockEmptyBookSize(),
+    );
+    await tapFirstBook(tester);
+    // ダイアログの表示
     expect(find.byType(AlertDialog), findsOneWidget);
     expect(
       find.descendant(
@@ -168,20 +204,52 @@ void main() {
       ),
       findsNWidgets(3),
     );
+  });
 
-    final widthField = find.widgetWithText(TextField, 'width');
-    final heightField = find.widgetWithText(TextField, 'height');
-    final pagesField = find.widgetWithText(TextField, 'pages');
-    expect(widthField, findsOneWidget);
-    expect(heightField, findsOneWidget);
-    expect(pagesField, findsOneWidget);
-    await tester.enterText(widthField, '1');
-    await tester.enterText(heightField, '1');
-    await tester.enterText(pagesField, '1');
-    await tester.tap(find.widgetWithText(TextButton, '追加する'));
-    await tester.pumpAndSettle();
+  testWidgets('[成功時]本のサイズの入力後の追加ボタンのタップ時、DBに正しく保存される', (
+    WidgetTester tester,
+  ) async {
+    final title = 'sample title';
+    final author = 'sample author';
+    final width = 1;
+    final height = 1;
+    final pages = 1;
+    final book = mockNdlBook(title: title, author: author);
+    final bookSize = BookSize(width: width, height: height, pages: pages);
+    await prepareSearchResult(
+      tester: tester,
+      book: book,
+      funcMockBookSize: mockEmptyBookSize(),
+    ); // 本のサイズは未取得
+    await tapFirstBook(tester);
+    await enterBookSize(tester: tester, bookSize: bookSize);
+    await tapAddBookButton(tester);
+
+    // Assert
+    final bookshelf = await Hive.openBox<Book>('book');
+    final createdBook = bookshelf.values.toList().first;
+    // 登録された本の内容が正しい
+    expect(createdBook.title, title);
+    expect(createdBook.author, author);
+    expect(createdBook.width, width);
+    expect(createdBook.height, height);
+    expect(createdBook.page, pages);
+  });
+
+  testWidgets('[成功時]本のサイズの入力後の追加ボタンのタップ時、Indexに遷移する', (
+    WidgetTester tester,
+  ) async {
+    await prepareSearchResult(
+      tester: tester,
+      funcMockBookSize: mockEmptyBookSize(),
+    );
+    await tapFirstBook(tester);
+    await enterBookSize(tester: tester);
+    await tapAddBookButton(tester);
+    // Assert
     expect(find.byType(Index), findsOneWidget);
   });
+
   // testWidgets('[失敗時]検索ボタンを押しても本が表示されない', (WidgetTester tester) async {
   //   await tester.pumpWidget(MaterialApp(home: NewBook()));
   //   await enterInvalidFormInput(tester);
@@ -199,10 +267,5 @@ void main() {
   //   final firstButtonFinder = find.byType(TextButton).at(0);
   //   await tester.tap(firstButtonFinder);
   //   await tester.pumpAndSettle();
-
-  //   // ダイアログの確認
-  //   await tester.tap(find.widgetWithText(TextButton, '追加する'));
-  //   await tester.pumpAndSettle();
-  //   expect(find.byType(Index), findsOneWidget);
-  // });
+  testWidgets('[失敗時]本のサイズの未入力時、本の追加に失敗する', (WidgetTester tester) async {});
 }
