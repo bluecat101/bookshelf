@@ -34,7 +34,6 @@ class _NewBookPageState extends State<NewBook> {
 
   // Indexに遷移する関数
   void _navigateToIndex(BuildContext context) {
-    Navigator.pop(context);
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
         pageBuilder: (_, __, ___) => Index(),
