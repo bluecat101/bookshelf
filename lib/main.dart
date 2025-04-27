@@ -1,12 +1,21 @@
+import 'package:bookshelf/apis/national_diet_library_api.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'book/index.dart';
 import 'book/new_book.dart';
 import 'package:bookshelf/book/model/book.dart';
 
+final getIt = GetIt.instance;
+
+void setupLocator() {
+  getIt.registerLazySingleton<BookFetcher>(() => BookFetcher());
+}
+
 void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(BookAdapter());
+  setupLocator();
   runApp(const MyApp());
 }
 

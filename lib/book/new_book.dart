@@ -5,6 +5,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:bookshelf/book/model/book.dart';
 import 'package:bookshelf/apis/national_diet_library_api.dart';
 import 'dart:math';
+import 'package:bookshelf/main.dart';
 
 class NewBook extends StatefulWidget {
   const NewBook({super.key});
@@ -47,7 +48,7 @@ class _NewBookPageState extends State<NewBook> {
     BuildContext context,
     NdlBook book,
   ) async {
-    final bookFetcher = BookFetcher();
+    final BookFetcher bookFetcher = getIt<BookFetcher>();
     var bookSize = await bookFetcher.fetchBookSize(book);
 
     if (!bookSize.isAllNull) {
@@ -187,6 +188,8 @@ class _NewBookPageState extends State<NewBook> {
 
   @override
   Widget build(BuildContext context) {
+    final BookFetcher bookFetcher = getIt<BookFetcher>();
+
     return Scaffold(
       appBar: AppBar(title: Text('newBook')),
       body: Form(
@@ -227,7 +230,6 @@ class _NewBookPageState extends State<NewBook> {
                   return;
                 }
                 final title = _titleKey.currentState!.value!;
-                final bookFetcher = BookFetcher();
                 searchedBooks = await bookFetcher
                     .fetchBookInfoThroughNationalDietLibrary(title);
                 setState(() {});
