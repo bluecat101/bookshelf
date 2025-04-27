@@ -173,9 +173,10 @@ class _NewBookPageState extends State<NewBook> {
               child: Text("追加する"),
               onPressed:
                   () => {
-                    if (widthController.text.isNotEmpty &&
-                        heightController.text.isNotEmpty &&
-                        pagesController.text.isNotEmpty)
+                    bookSize.width = int.tryParse(widthController.text),
+                    bookSize.height = int.tryParse(heightController.text),
+                    bookSize.pages = int.tryParse(pagesController.text),
+                    if (!bookSize.isAllNull)
                       {_addBook(book, bookSize), _navigateToIndex(context)},
                   },
             ),

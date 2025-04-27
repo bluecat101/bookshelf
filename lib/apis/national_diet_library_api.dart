@@ -77,11 +77,11 @@ class NdlBook {
 }
 
 class BookSize {
-  final int? width;
-  final int? height;
-  final int? pages;
+  int? width;
+  int? height;
+  int? pages;
 
-  const BookSize({this.width, this.height, this.pages});
+  BookSize({this.width, this.height, this.pages});
 
   bool get isAllNull => width == null && height == null && pages == null;
   static const bookSizeFromHeight = {
