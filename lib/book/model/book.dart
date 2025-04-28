@@ -14,7 +14,8 @@ class Book {
     required this.height,
     required this.width,
     this.image,
-  });
+    DateTime? createdAt,
+  }) : createdAt = createdAt ?? DateTime.now();
   @HiveField(0)
   String title;
 
@@ -33,6 +34,9 @@ class Book {
   // 数が増えると画像をここに保存せずにpathを保存し呼び出す。
   @HiveField(5)
   Uint8List? image;
+
+  @HiveField(6)
+  DateTime createdAt;
 
   static String? validateTitle(String? value) {
     if (value == null || value.isEmpty) return 'タイトルを入力してください';
