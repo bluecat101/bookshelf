@@ -27,7 +27,7 @@ class _NewBookPageState extends State<NewBook> {
       author: ndlBook.author,
       width: bookSize.width!,
       height: bookSize.height!,
-      page: bookSize.pages!,
+      pages: bookSize.pages!,
     );
     bookshelf.add(book);
   }

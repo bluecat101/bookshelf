@@ -11,7 +11,7 @@ Future<void> createDummyData() async {
   final book = Book(
     title: 'sample title',
     author: 'sample author',
-    page: 1,
+    pages: 1,
     height: 1,
     width: 1,
   );
@@ -112,7 +112,7 @@ void main() {
     final books = bookshelf.values.toList();
     expect(books[0].title, title);
     expect(books[0].author, author);
-    expect(books[0].page, page);
+    expect(books[0].pages, page);
     expect(books[0].height, height);
     expect(books[0].width, width);
   });

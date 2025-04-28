@@ -12,7 +12,7 @@ Future<void> createDummyData() async {
   final book = Book(
     title: 'sample title',
     author: 'sample author',
-    page: 1,
+    pages: 1,
     height: 1,
     width: 1,
   );

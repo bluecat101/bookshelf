@@ -10,7 +10,7 @@ class Book {
   Book({
     required this.title,
     required this.author,
-    required this.page,
+    required this.pages,
     required this.height,
     required this.width,
     this.image,
@@ -22,7 +22,7 @@ class Book {
   String author;
 
   @HiveField(2)
-  int page;
+  int pages;
 
   @HiveField(3)
   int height;
@@ -39,7 +39,7 @@ class Book {
     return null;
   }
 
-  static String? validatePage(String? value) {
+  static String? validatePages(String? value) {
     if (value == null || int.tryParse(value) == null) return '数字を入れてください';
     final parsedValue = int.parse(value);
     if (parsedValue < 1) return '1以上にしてください';

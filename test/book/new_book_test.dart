@@ -178,7 +178,7 @@ void main() {
     expect(createdBook.author, author);
     expect(createdBook.width, width);
     expect(createdBook.height, height);
-    expect(createdBook.page, pages);
+    expect(createdBook.pages, pages);
   });
   testWidgets('[成功時]検索結果のタップ時、Indexに遷移する', (WidgetTester tester) async {
     await prepareSearchResult(tester: tester);
@@ -231,7 +231,7 @@ void main() {
     expect(createdBook.author, author);
     expect(createdBook.width, width);
     expect(createdBook.height, height);
-    expect(createdBook.page, pages);
+    expect(createdBook.pages, pages);
   });
 
   testWidgets('[成功時]本のサイズの入力後の追加ボタンのタップ時、Indexに遷移する', (

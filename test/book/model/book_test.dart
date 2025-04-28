@@ -21,21 +21,21 @@ void main() {
 
   group('ページ バリデーションチェック', () {
     test('ページが空ならエラー', () {
-      final result = Book.validatePage(null);
+      final result = Book.validatePages(null);
       expect(result, '数字を入れてください');
     });
     test('ページが数字でないならエラー', () {
-      final result = Book.validatePage('string page');
+      final result = Book.validatePages('string page');
       expect(result, '数字を入れてください');
     });
 
     test('ページの値が0以下ならエラー', () {
-      final result = Book.validatePage("0");
+      final result = Book.validatePages("0");
       expect(result, '1以上にしてください');
     });
 
     test('ページの値が正しければ null を返す', () {
-      final result = Book.validatePage('1');
+      final result = Book.validatePages('1');
       expect(result, null);
     });
   });

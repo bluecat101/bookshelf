@@ -19,7 +19,7 @@ class BookAdapter extends TypeAdapter<Book> {
     return Book(
       title: fields[0] as String,
       author: fields[1] as String,
-      page: fields[2] as int,
+      pages: fields[2] as int,
       height: fields[3] as int,
       width: fields[4] as int,
       image: fields[5] as Uint8List?,
@@ -35,7 +35,7 @@ class BookAdapter extends TypeAdapter<Book> {
       ..writeByte(1)
       ..write(obj.author)
       ..writeByte(2)
-      ..write(obj.page)
+      ..write(obj.pages)
       ..writeByte(3)
       ..write(obj.height)
       ..writeByte(4)

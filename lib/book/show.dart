@@ -24,7 +24,7 @@ class _ShowPageState extends State<Show> {
 
     _titleController = TextEditingController(text: widget.book.title);
     _authorController = TextEditingController(text: widget.book.author);
-    _pageController = TextEditingController(text: widget.book.page.toString());
+    _pageController = TextEditingController(text: widget.book.pages.toString());
     _heightController = TextEditingController(
       text: widget.book.height.toString(),
     );
@@ -71,7 +71,7 @@ class _ShowPageState extends State<Show> {
     if (_formKey.currentState!.validate()) {
       book.title = _titleController.text;
       book.author = _authorController.text;
-      book.page = int.parse(_pageController.text);
+      book.pages = int.parse(_pageController.text);
       book.height = int.parse(_heightController.text);
       book.width = int.parse(_widthController.text);
       await updateBook(book);
@@ -136,7 +136,7 @@ class _ShowPageState extends State<Show> {
             generateTextFormField(
               _pageController,
               'page',
-              book.page?.toString(),
+              book.pages?.toString(),
             ),
             generateTextFormField(
               _heightController,
