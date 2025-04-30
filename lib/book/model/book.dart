@@ -13,6 +13,7 @@ class Book {
     required this.pages,
     required this.height,
     required this.width,
+    this.comment,
     this.image,
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
@@ -31,11 +32,14 @@ class Book {
   @HiveField(4)
   int width;
 
-  // 数が増えると画像をここに保存せずにpathを保存し呼び出す。
   @HiveField(5)
+  String? comment;
+
+  // 数が増えると画像をここに保存せずにpathを保存し呼び出す。
+  @HiveField(6)
   Uint8List? image;
 
-  @HiveField(6)
+  @HiveField(7)
   DateTime createdAt;
 
   static String? validateTitle(String? value) {
