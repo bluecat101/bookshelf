@@ -12,6 +12,81 @@ class Index extends StatefulWidget {
 }
 
 class _IndexPageState extends State<Index> {
+  void _navigateToShow(BuildContext context, Book book) async {
+    Navigator.pop(context);
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) {
+          return Show(book: book);
+        },
+      ),
+    );
+  }
+
+  AlertDialog _showBookInfoDialog(Book book) {
+    return AlertDialog(
+      title: Text(book.title),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Text('著者:${book.author}'),
+          Text('説明: 説明が入ります'), // 本の説明を入れる(まだカラムを未実装)
+        ],
+      ),
+      actions: [
+        TextButton(
+          child: Text("Cancel"),
+          onPressed: () => Navigator.pop(context),
+        ),
+        TextButton(
+          child: Text("Show"),
+          onPressed: () {
+            _navigateToShow(context, book);
+            setState(() {});
+          },
+        ),
+      ],
+    );
+  }
+
+  Container _bookItemInfo(Book book) {
+    return Container(
+      width: 100, // 必須！サイズ指定しないと見えないことが多い
+      height: 100,
+      color: Color(
+        (Random().nextDouble() * 0xFFFFFF).toInt() << 0,
+      ).withValues(alpha: 1.0),
+      child: Text(
+        book.title,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+          color: Colors.black,
+        ),
+      ),
+    );
+  }
+
+  InkWell _buildBookItem(Book book) {
+    return InkWell(
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return _showBookInfoDialog(book);
+          },
+        );
+      },
+      child: _bookItemInfo(book),
+    );
+  }
+
+  List<InkWell> _buildBookListItems(List<Book> books) {
+    return books.map((book) {
+      return _buildBookItem(book);
+    }).toList();
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Index')),
@@ -26,69 +101,10 @@ class _IndexPageState extends State<Index> {
 
           final box = snapshot.data!; // 非同期でアクセスしたデータを取得
           final books = box.values.toList();
-          if (books.isEmpty) {
-            debugPrint('からです');
-          }
           return Wrap(
             spacing: 8.0,
             runSpacing: 8.0,
-            children:
-                books.map((book) {
-                  return InkWell(
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: Text(book.title),
-                            content: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                Text('著者:${book.author}'),
-                                Text('説明: 説明が入ります'), // 本の説明を入れる(まだカラムを未実装)
-                              ],
-                            ),
-                            actions: [
-                              TextButton(
-                                child: Text("Cancel"),
-                                onPressed: () => Navigator.pop(context),
-                              ),
-                              TextButton(
-                                child: Text("Show"),
-                                onPressed: () async {
-                                  Navigator.pop(context);
-                                  await Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) {
-                                        return Show(book: book);
-                                      },
-                                    ),
-                                  );
-                                  setState(() {});
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    child: Container(
-                      width: 100, // 必須！サイズ指定しないと見えないことが多い
-                      height: 100,
-                      color: Color(
-                        (Random().nextDouble() * 0xFFFFFF).toInt() << 0,
-                      ).withValues(alpha: 1.0),
-                      child: Text(
-                        book.title,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
+            children: _buildBookListItems(books),
           );
         },
       ),
