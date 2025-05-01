@@ -11,7 +11,24 @@ class Index extends StatefulWidget {
   State<Index> createState() => _IndexPageState();
 }
 
-class _IndexPageState extends State<Index> {
+class _IndexPageState extends State<Index> with TickerProviderStateMixin {
+  late AnimationController _bookController;
+  late Animation<double> _bookAnimation;
+  late Object bookObject; // Bookオブジェクトの参照
+  bool mode_change_switch = true;
+
+  Future<void> setAnimation() async {
+    _bookController = AnimationController(
+      duration: Duration(seconds: 2),
+      vsync: this,
+    );
+
+    _bookAnimation = Tween<double>(
+      begin: 0, // ← 本棚で背表紙が見えている状態（0度）
+      end: pi / 2, // ← 開いて表紙が見える状態（90度）
+    ).animate(CurvedAnimation(parent: _bookController, curve: Curves.linear));
+  }
+
   void _navigateToShow(BuildContext context, Book book) async {
     Navigator.pop(context);
     await Navigator.of(context).push(
@@ -49,44 +66,119 @@ class _IndexPageState extends State<Index> {
     );
   }
 
-  Container _bookItemInfo(Book book) {
-    return Container(
-      width: 100, // 必須！サイズ指定しないと見えないことが多い
-      height: 100,
-      color: Color(
-        (Random().nextDouble() * 0xFFFFFF).toInt() << 0,
-      ).withValues(alpha: 1.0),
-      child: Text(
-        book.title,
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
-          color: Colors.black,
-        ),
-      ),
+  AnimatedBuilder bookWidget() {
+    return AnimatedBuilder(
+      animation: _bookAnimation,
+      builder: (context, _) {
+        return Transform(
+          alignment: Alignment.centerLeft,
+          transform:
+              Matrix4.identity()
+                ..setEntry(3, 2, 0.001)
+                ..rotateY(_bookAnimation.value), // ← アニメーションで全体を回す
+          child: SizedBox(
+            width: 110,
+            height: 150,
+            child: Stack(
+              children: [
+                // 背表紙（常に見えてる）
+                Positioned(
+                  left: 0,
+                  child: Transform(
+                    alignment: Alignment.center,
+                    transform: Matrix4.identity(), // ← 初期角度そのまま
+                    child: Container(
+                      width: 10,
+                      height: 150,
+                      color: Colors.brown,
+                    ),
+                  ),
+                ),
+                // 表紙（最初は横向きで見えない）
+                Positioned(
+                  left: 10,
+                  child: Transform(
+                    alignment: Alignment.centerLeft,
+                    transform:
+                        Matrix4.identity()
+                          ..setRotationY(-pi / 2), // ← 表紙だけ初期角度を与える
+                    child: Container(
+                      width: 100,
+                      height: 150,
+                      color: Colors.blue,
+                      child: Center(child: Text("本")),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
-  InkWell _buildBookItem(Book book) {
+  Container _bookItemInfo(
+    Book book,
+    double translateX,
+    double translateY,
+    double translateZ,
+  ) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    return Container(
+      width: double.infinity,
+      height: screenHeight / 2 - AppBar().preferredSize.height,
+      child: bookWidget(),
+      // child: Stack(
+      //   children: [
+      //     // 背表紙
+      //     // bookSpine(),
+      //     // bookCover(translateX, translateY, translateZ),
+      //     bookWidget(),
+      //     // 表紙
+      //   ],
+      // ),
+    );
+  }
+  // }
+
+  InkWell _buildBookItem(
+    Book book,
+    double translateX,
+    double translateY,
+    double translateZ,
+  ) {
     return InkWell(
       onTap: () {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return _showBookInfoDialog(book);
-          },
-        );
+        if (mode_change_switch) {
+          _bookController.forward();
+        } else {
+          _bookController.reverse();
+        }
+        mode_change_switch = !mode_change_switch;
       },
-      child: _bookItemInfo(book),
+      child: _bookItemInfo(book, translateX, translateY, translateZ),
     );
   }
 
   List<InkWell> _buildBookListItems(List<Book> books) {
+    var translateX = 0.0;
+    var translateY = 0.0;
+    var translateZ = 0.0;
+
     return books.map((book) {
-      return _buildBookItem(book);
+      // translateX -= 5;
+      return _buildBookItem(book, translateX, translateY, translateZ);
     }).toList();
   }
 
+  @override
+  void initState() {
+    setAnimation();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Index')),
