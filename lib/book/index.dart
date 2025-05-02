@@ -11,9 +11,10 @@ class Index extends StatefulWidget {
   State<Index> createState() => _IndexPageState();
 }
 
-class _IndexPageState extends State<Index> with TickerProviderStateMixin {
+class _IndexPageState extends State<Index> with SingleTickerProviderStateMixin {
   late AnimationController _bookController;
-  late Animation<double> _bookAnimation;
+  late Animation<double> _bookRotationAnimation;
+  late Animation<Offset> _bookPositionAnimation;
   late Object bookObject; // Bookオブジェクトの参照
   bool mode_change_switch = true;
 
@@ -22,11 +23,21 @@ class _IndexPageState extends State<Index> with TickerProviderStateMixin {
       duration: Duration(seconds: 2),
       vsync: this,
     );
+  }
 
-    _bookAnimation = Tween<double>(
-      begin: 0, // ← 本棚で背表紙が見えている状態（0度）
-      end: pi / 2, // ← 開いて表紙が見える状態（90度）
-    ).animate(CurvedAnimation(parent: _bookController, curve: Curves.linear));
+  void setPositionAnimation() {
+    final screenSize = MediaQuery.of(context).size;
+    final screenCenter = Offset(screenSize.width / 2, screenSize.height / 2);
+    final adjustedTarget = screenCenter;
+    // final adjustedTarget = screenCenter - Offset(110 / 2, 150 / 2);
+    // final adjustedTarget = screenCenter - Offset(300, 150 / 2);
+
+    _bookPositionAnimation = Tween<Offset>(
+      begin: Offset.zero,
+      end: adjustedTarget,
+    ).animate(
+      CurvedAnimation(parent: _bookController, curve: Curves.easeInOut),
+    );
   }
 
   void _navigateToShow(BuildContext context, Book book) async {
@@ -68,54 +79,55 @@ class _IndexPageState extends State<Index> with TickerProviderStateMixin {
 
   AnimatedBuilder bookWidget() {
     return AnimatedBuilder(
-      animation: _bookAnimation,
-      builder: (context, _) {
-        return Transform(
-          alignment: Alignment.centerLeft,
-          transform:
-              Matrix4.identity()
-                ..setEntry(3, 2, 0.001)
-                ..rotateY(_bookAnimation.value), // ← アニメーションで全体を回す
-          child: SizedBox(
-            width: 110,
-            height: 150,
-            child: Stack(
-              children: [
-                // 背表紙（常に見えてる）
-                Positioned(
-                  left: 0,
-                  child: Transform(
-                    alignment: Alignment.center,
-                    transform: Matrix4.identity(), // ← 初期角度そのまま
-                    child: Container(
-                      width: 10,
-                      height: 150,
-                      color: Colors.brown,
-                    ),
-                  ),
-                ),
-                // 表紙（最初は横向きで見えない）
-                Positioned(
-                  left: 10,
-                  child: Transform(
-                    alignment: Alignment.centerLeft,
-                    transform:
-                        Matrix4.identity()
-                          ..setRotationY(-pi / 2), // ← 表紙だけ初期角度を与える
-                    child: Container(
-                      width: 100,
-                      height: 150,
-                      color: Colors.blue,
-                      child: Center(child: Text("本")),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+      animation: _bookController,
+      builder: (context, child) {
+        return Transform.translate(
+          offset: _bookPositionAnimation.value,
+          child: Transform(
+            alignment: Alignment.centerLeft,
+            transform:
+                Matrix4.identity()
+                  ..setEntry(3, 2, 0.001)
+                  ..rotateY(_bookRotationAnimation.value),
+            child: child,
           ),
         );
       },
+      child: SizedBox(
+        width: 110,
+        height: 150,
+        child: Stack(
+          children: [
+            // 背表紙（常に見えてる）
+            Positioned(
+              left: 0,
+              child: Transform(
+                alignment: Alignment.center,
+                transform: Matrix4.identity(), // ← 初期角度そのまま
+                child: Container(width: 10, height: 150, color: Colors.brown),
+              ),
+            ),
+            // 表紙（最初は横向きで見えない）
+            Positioned(
+              left: 10,
+              child: Transform(
+                alignment: Alignment.centerLeft,
+                transform:
+                    Matrix4.identity()..setRotationY(-pi / 2), // ← 表紙だけ初期角度を与える
+                child: Container(
+                  width: 100,
+                  height: 150,
+                  color: Colors.blue,
+                  child: Center(child: Text("本")),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
+    // },
+    // );
   }
 
   Container _bookItemInfo(
@@ -174,8 +186,21 @@ class _IndexPageState extends State<Index> with TickerProviderStateMixin {
 
   @override
   void initState() {
-    setAnimation();
     super.initState();
+
+    _bookController = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 2),
+    );
+
+    _bookRotationAnimation = Tween<double>(
+      begin: 0,
+      end: pi / 2,
+    ).animate(CurvedAnimation(parent: _bookController, curve: Curves.linear));
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setPositionAnimation();
+    });
   }
 
   @override
