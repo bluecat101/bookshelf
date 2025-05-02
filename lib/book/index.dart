@@ -14,6 +14,36 @@ class Index extends StatefulWidget {
 class _IndexPageState extends State<Index> {
   final Set<Book> _readBook = {};
 
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Index')),
+      body: FutureBuilder<Box<Book>>(
+        future: Hive.openBox<Book>('book'), // 非同期でHiveにアクセス
+
+        builder: (BuildContext context, AsyncSnapshot<Box<Book>> snapshot) {
+          if (!snapshot.hasData) {
+            // 非同期が完了していなければ、ローディング画面を表示する
+            return Center(child: CircularProgressIndicator());
+          }
+
+          final box = snapshot.data!; // 非同期でアクセスしたデータを取得
+          final books = box.values.toList();
+          return Wrap(
+            spacing: 8.0,
+            runSpacing: 8.0,
+            children: _buildBookListItems(books),
+          );
+        },
+      ),
+    );
+  }
+
   void _navigateToShow(BuildContext context, Book book) async {
     Navigator.pop(context);
     await Navigator.of(context).push(
@@ -64,7 +94,7 @@ class _IndexPageState extends State<Index> {
     );
   }
 
-  SizedBox bookWidget() {
+  SizedBox bookInBookshelf() {
     return SizedBox(
       width: 110,
       height: 150,
@@ -84,11 +114,11 @@ class _IndexPageState extends State<Index> {
     return Container(
       width: 10,
       height: screenHeight / 2 - AppBar().preferredSize.height,
-      child: bookWidget(),
+      child: bookInBookshelf(),
     );
   }
 
-  void showBook(Book book) {
+  void openBookAnimation(Book book) {
     final overlay = Overlay.of(context);
     late OverlayEntry entry;
 
@@ -118,7 +148,7 @@ class _IndexPageState extends State<Index> {
         setState(() {
           _readBook.add(book); // 非表示にする
         });
-        showBook(book);
+        openBookAnimation(book);
       },
       child: _bookItemInfo(book),
     );
@@ -131,36 +161,6 @@ class _IndexPageState extends State<Index> {
         child: _buildBookItem(book),
       );
     }).toList();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Index')),
-      body: FutureBuilder<Box<Book>>(
-        future: Hive.openBox<Book>('book'), // 非同期でHiveにアクセス
-
-        builder: (BuildContext context, AsyncSnapshot<Box<Book>> snapshot) {
-          if (!snapshot.hasData) {
-            // 非同期が完了していなければ、ローディング画面を表示する
-            return Center(child: CircularProgressIndicator());
-          }
-
-          final box = snapshot.data!; // 非同期でアクセスしたデータを取得
-          final books = box.values.toList();
-          return Wrap(
-            spacing: 8.0,
-            runSpacing: 8.0,
-            children: _buildBookListItems(books),
-          );
-        },
-      ),
-    );
   }
 }
 
@@ -242,54 +242,49 @@ class _AnimatedBookWidgetState extends State<AnimatedBookWidget>
 
   @override
   Widget build(BuildContext context) {
-    return IgnorePointer(ignoring: false, child: bookWidget());
+    return IgnorePointer(ignoring: false, child: _buildAnimatedBook());
   }
 
-  AnimatedBuilder bookWidget() {
+  Positioned bookSpineWidget() {
+    return Positioned(left: 0, child: widget.bookSpineContainer());
+  }
+
+  Positioned bookCoverWidget() {
+    return Positioned(
+      left: 10,
+      child: Transform(
+        alignment: Alignment.centerLeft,
+        transform: Matrix4.identity()..setRotationY(-pi / 2),
+        child: widget.bookCoverContainer(),
+      ),
+    );
+  }
+
+  Transform bookAnimation(child) {
+    return Transform.translate(
+      offset: _bookPositionAnimation.value,
+      child: Transform(
+        alignment: Alignment.centerLeft,
+        transform:
+            Matrix4.identity()
+              ..setEntry(3, 2, 0.001)
+              ..rotateY(_bookRotationAnimation.value),
+        child: child,
+      ),
+    );
+  }
+
+  AnimatedBuilder _buildAnimatedBook() {
     return AnimatedBuilder(
       animation: _bookController,
       builder: (context, child) {
-        return Transform.translate(
-          offset: _bookPositionAnimation.value,
-          child: Transform(
-            alignment: Alignment.centerLeft,
-            transform:
-                Matrix4.identity()
-                  ..setEntry(3, 2, 0.001)
-                  ..rotateY(_bookRotationAnimation.value),
-            child: child,
-          ),
-        );
+        return bookAnimation(child);
       },
       child: SizedBox(
         width: 110,
         height: 150,
-        child: Stack(
-          children: [
-            // 背表紙（常に見えてる）
-            Positioned(
-              left: 0,
-              child: Transform(
-                alignment: Alignment.center,
-                transform: Matrix4.identity(), // ← 初期角度そのまま
-                child: widget.bookSpineContainer(),
-              ),
-            ),
-            // 表紙（最初は横向きで見えない）
-            Positioned(
-              left: 10,
-              child: Transform(
-                alignment: Alignment.centerLeft,
-                transform:
-                    Matrix4.identity()..setRotationY(-pi / 2), // ← 表紙だけ初期角度を与える
-                child: widget.bookCoverContainer(),
-              ),
-            ),
-          ],
-        ),
+        child: Stack(children: [bookSpineWidget(), bookCoverWidget()]),
       ),
     );
-    // },
-    // );
   }
 }
