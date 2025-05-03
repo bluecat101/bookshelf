@@ -1,5 +1,6 @@
-import 'dart:math';
 import 'package:bookshelf/book/show.dart';
+import 'package:bookshelf/book/widgets/book_item.dart';
+import 'package:bookshelf/book/widgets/book_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'model/book.dart';
@@ -44,6 +45,19 @@ class _IndexPageState extends State<Index> {
     );
   }
 
+  Container bookSpineContainer() {
+    return Container(width: 10, height: 150, color: Colors.brown);
+  }
+
+  Container bookCoverContainer() {
+    return Container(
+      width: 100,
+      height: 150,
+      color: Colors.blue,
+      child: Center(child: Text("本")),
+    );
+  }
+
   void _navigateToShow(BuildContext context, Book book) async {
     Navigator.pop(context);
     await Navigator.of(context).push(
@@ -81,43 +95,6 @@ class _IndexPageState extends State<Index> {
     );
   }
 
-  Container bookSpineContainer() {
-    return Container(width: 10, height: 150, color: Colors.brown);
-  }
-
-  Container bookCoverContainer() {
-    return Container(
-      width: 100,
-      height: 150,
-      color: Colors.blue,
-      child: Center(child: Text("本")),
-    );
-  }
-
-  SizedBox bookInBookshelf() {
-    return SizedBox(
-      width: 110,
-      height: 150,
-      child: Stack(
-        children: [
-          // 背表紙
-          Positioned(left: 0, child: bookSpineContainer()),
-          // 表紙
-          Positioned(left: 10, child: bookCoverContainer()),
-        ],
-      ),
-    );
-  }
-
-  Container _bookItemInfo(Book book) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    return Container(
-      width: 10,
-      height: screenHeight / 2 - AppBar().preferredSize.height,
-      child: bookInBookshelf(),
-    );
-  }
-
   void openBookAnimation(Book book) {
     final overlay = Overlay.of(context);
     late OverlayEntry entry;
@@ -129,8 +106,6 @@ class _IndexPageState extends State<Index> {
             onClose: () {
               entry.remove();
             },
-            bookSpineContainer: bookSpineContainer,
-            bookCoverContainer: bookCoverContainer,
             showDialog: _showBookInfoDialog,
           ),
     );
@@ -142,7 +117,7 @@ class _IndexPageState extends State<Index> {
     if (_readBook.contains(book)) {
       return InkWell(child: SizedBox(width: 10, height: 150));
     }
-
+    final bookItem = BookItem(book: book);
     return InkWell(
       onTap: () {
         setState(() {
@@ -150,7 +125,7 @@ class _IndexPageState extends State<Index> {
         });
         openBookAnimation(book);
       },
-      child: _bookItemInfo(book),
+      child: bookItem,
     );
   }
 
@@ -161,130 +136,5 @@ class _IndexPageState extends State<Index> {
         child: _buildBookItem(book),
       );
     }).toList();
-  }
-}
-
-class AnimatedBookWidget extends StatefulWidget {
-  final Book book;
-  final VoidCallback onClose;
-  final Container Function() bookSpineContainer;
-  final Container Function() bookCoverContainer;
-  final Function(Book book) showDialog;
-
-  const AnimatedBookWidget({
-    required this.book,
-    required this.onClose,
-    required this.bookSpineContainer,
-    required this.bookCoverContainer,
-    required this.showDialog,
-  });
-
-  @override
-  _AnimatedBookWidgetState createState() => _AnimatedBookWidgetState();
-}
-
-class _AnimatedBookWidgetState extends State<AnimatedBookWidget>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _bookController;
-  late Animation<double> _bookRotationAnimation;
-  late Animation<Offset> _bookPositionAnimation;
-
-  void setAnimationController() {
-    _bookController = AnimationController(
-      duration: Duration(seconds: 2),
-      vsync: this,
-    );
-  }
-
-  void setRotationAnimation() {
-    _bookRotationAnimation = Tween<double>(
-      begin: 0,
-      end: pi / 2,
-    ).animate(CurvedAnimation(parent: _bookController, curve: Curves.linear));
-  }
-
-  void setPositionAnimation() {
-    final screenSize = MediaQuery.of(context).size;
-    final screenCenter = Offset(screenSize.width / 2, screenSize.height / 2);
-    final adjustedTarget = screenCenter;
-
-    _bookPositionAnimation = Tween<Offset>(
-      begin: Offset.zero,
-      end: adjustedTarget,
-    ).animate(
-      CurvedAnimation(parent: _bookController, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    setAnimationController();
-    setRotationAnimation();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      setPositionAnimation();
-    });
-    _bookController.forward();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    setPositionAnimation();
-  }
-
-  @override
-  void dispose() {
-    _bookController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return IgnorePointer(ignoring: false, child: _buildAnimatedBook());
-  }
-
-  Positioned bookSpineWidget() {
-    return Positioned(left: 0, child: widget.bookSpineContainer());
-  }
-
-  Positioned bookCoverWidget() {
-    return Positioned(
-      left: 10,
-      child: Transform(
-        alignment: Alignment.centerLeft,
-        transform: Matrix4.identity()..setRotationY(-pi / 2),
-        child: widget.bookCoverContainer(),
-      ),
-    );
-  }
-
-  Transform bookAnimation(child) {
-    return Transform.translate(
-      offset: _bookPositionAnimation.value,
-      child: Transform(
-        alignment: Alignment.centerLeft,
-        transform:
-            Matrix4.identity()
-              ..setEntry(3, 2, 0.001)
-              ..rotateY(_bookRotationAnimation.value),
-        child: child,
-      ),
-    );
-  }
-
-  AnimatedBuilder _buildAnimatedBook() {
-    return AnimatedBuilder(
-      animation: _bookController,
-      builder: (context, child) {
-        return bookAnimation(child);
-      },
-      child: SizedBox(
-        width: 110,
-        height: 150,
-        child: Stack(children: [bookSpineWidget(), bookCoverWidget()]),
-      ),
-    );
   }
 }
