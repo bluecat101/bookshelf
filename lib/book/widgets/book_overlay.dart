@@ -8,14 +8,12 @@ class AnimatedBookWidget extends StatefulWidget {
   final Book book;
   final Offset position;
   final VoidCallback onClose;
-  final Function(Book book) showDialog;
 
   const AnimatedBookWidget({
     super.key,
     required this.book,
     required this.position,
     required this.onClose,
-    required this.showDialog,
   });
 
   @override
@@ -38,6 +36,11 @@ class AnimatedBookWidgetState extends State<AnimatedBookWidget>
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _setPositionAnimation();
+    });
+    _bookController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        widget.onClose();
+      }
     });
     _bookController.forward();
   }

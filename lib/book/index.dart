@@ -57,29 +57,42 @@ class _IndexPageState extends State<Index> {
     );
   }
 
-  AlertDialog _showBookInfoDialog(Book book) {
-    return AlertDialog(
-      title: Text(book.title),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Text('著者:${book.author}'),
-          Text('説明: 説明が入ります'), // 本の説明を入れる(まだカラムを未実装)
-        ],
-      ),
-      actions: [
-        TextButton(
-          child: Text("Cancel"),
-          onPressed: () => Navigator.pop(context),
-        ),
-        TextButton(
-          child: Text("Show"),
-          onPressed: () {
-            _navigateToShow(context, book);
-            setState(() {});
-          },
-        ),
-      ],
+  Future<bool?> _confirmBookActionDialog(Book book) {
+    final String author =
+        book.author.contains(',') ? book.author.split(',')[0] : book.author;
+    book.comment ??= '';
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(book.title, overflow: TextOverflow.ellipsis),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              bookCoverContainer(book),
+              Text('著者: $author', overflow: TextOverflow.ellipsis),
+              Text('説明\n${book.comment}'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              child: Text("Cancel"),
+              onPressed:
+                  () => {
+                    _readBook.remove(book),
+                    Navigator.pop(context),
+                    setState(() {}),
+                  },
+            ),
+            TextButton(
+              child: Text("Show"),
+              onPressed: () {
+                _navigateToShow(context, book);
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -94,8 +107,8 @@ class _IndexPageState extends State<Index> {
             position: position,
             onClose: () {
               entry.remove();
+              _confirmBookActionDialog(book);
             },
-            showDialog: _showBookInfoDialog,
           ),
     );
 
@@ -122,7 +135,6 @@ class _IndexPageState extends State<Index> {
         final context = itemKey.currentContext;
         final box = context!.findRenderObject() as RenderBox;
         final position = box.localToGlobal(Offset.zero);
-        debugPrint(position.toString());
         openBookAnimation(book, position);
       },
       child: bookItem,
