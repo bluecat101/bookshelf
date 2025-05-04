@@ -15,6 +15,7 @@ class Index extends StatefulWidget {
 
 class _IndexPageState extends State<Index> {
   final Set<Book> _readBook = {};
+  late bool isAnimating = false;
   @override
   void initState() {
     super.initState();
@@ -57,7 +58,7 @@ class _IndexPageState extends State<Index> {
     );
   }
 
-  Future<bool?> _confirmBookActionDialog(Book book) {
+  Future<void> _confirmBookActionDialog(Book book) {
     final String author =
         book.author.contains(',') ? book.author.split(',')[0] : book.author;
     book.comment ??= '';
@@ -93,7 +94,12 @@ class _IndexPageState extends State<Index> {
           ],
         );
       },
-    );
+    ).then((value) {
+      if (value == null || value == 'cancel') {
+        _readBook.remove(book);
+        setState(() {});
+      }
+    });
   }
 
   void openBookAnimation(Book book, Offset position) {
@@ -107,6 +113,7 @@ class _IndexPageState extends State<Index> {
             position: position,
             onClose: () {
               entry.remove();
+              isAnimating = false;
               _confirmBookActionDialog(book);
             },
           ),
@@ -115,29 +122,31 @@ class _IndexPageState extends State<Index> {
     overlay.insert(entry);
   }
 
-  InkWell _buildBookItem(Book book) {
+  Widget _buildBookItem(Book book) {
     if (_readBook.contains(book)) {
       // 読まれている本であるため、領域のみ確保(表示なし)
-      return InkWell(
-        child: SizedBox(
-          width: resizeBookThickness(book),
-          height: resizeBookHeight(book),
-        ),
+      return SizedBox(
+        width: resizeBookThickness(book),
+        height: resizeBookHeight(book),
       );
     }
     final itemKey = GlobalKey();
     final bookItem = BookItem(book: book, itemKey: itemKey);
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _readBook.add(book); // 非表示にする
-        });
-        final context = itemKey.currentContext;
-        final box = context!.findRenderObject() as RenderBox;
-        final position = box.localToGlobal(Offset.zero);
-        openBookAnimation(book, position);
-      },
-      child: bookItem,
+    return IgnorePointer(
+      ignoring: isAnimating,
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            _readBook.add(book); // 非表示にする
+            isAnimating = true;
+          });
+          final context = itemKey.currentContext;
+          final box = context!.findRenderObject() as RenderBox;
+          final position = box.localToGlobal(Offset.zero);
+          openBookAnimation(book, position);
+        },
+        child: bookItem,
+      ),
     );
   }
 
