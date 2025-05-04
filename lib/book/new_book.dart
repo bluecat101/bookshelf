@@ -25,6 +25,7 @@ class _NewBookPageState extends State<NewBook> {
     final book = Book(
       title: ndlBook.title,
       author: ndlBook.author,
+      imageUrl: ndlBook.imageUrl,
       width: bookSize.width!,
       height: bookSize.height!,
       pages: bookSize.pages!,
