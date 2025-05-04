@@ -22,27 +22,29 @@ class AnimatedBookWidget extends StatefulWidget {
 
 class AnimatedBookWidgetState extends State<AnimatedBookWidget>
     with SingleTickerProviderStateMixin {
-  late AnimationController _bookController;
-  late Animation<double> _bookRotationAnimation;
-  late Animation<Offset> _bookPositionAnimation;
+  late AnimationController _controller;
+  late Animation<double> _rotationAnimation;
+  late Animation<Offset> _positionAnimation;
+  late Animation<double> _scaleAnimation;
   late final Book book;
-
+  final double animatedScale = 2;
   @override
   void initState() {
     super.initState();
     book = widget.book;
     _setAnimationController();
     _setRotationAnimation();
+    _setScaleAnimation();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _setPositionAnimation();
     });
-    _bookController.addStatusListener((status) {
+    _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         widget.onClose();
       }
     });
-    _bookController.forward();
+    _controller.forward();
   }
 
   @override
@@ -53,7 +55,7 @@ class AnimatedBookWidgetState extends State<AnimatedBookWidget>
 
   @override
   void dispose() {
-    _bookController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -63,35 +65,38 @@ class AnimatedBookWidgetState extends State<AnimatedBookWidget>
   }
 
   void _setAnimationController() {
-    _bookController = AnimationController(
+    _controller = AnimationController(
       duration: Duration(seconds: 2),
       vsync: this,
     );
   }
 
   void _setRotationAnimation() {
-    _bookRotationAnimation = Tween<double>(
+    _rotationAnimation = Tween<double>(
       begin: 0,
       end: pi / 2,
-    ).animate(CurvedAnimation(parent: _bookController, curve: Curves.linear));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.linear));
   }
 
   void _setPositionAnimation() {
     final screenSize = MediaQuery.of(context).size;
     final screenCenter = Offset(
-      screenSize.width / 2 -
-          resizeBookThickness(book) +
-          resizeBookWidth(book) / 2,
+      (screenSize.width / 2) / animatedScale - resizeBookWidth(book) / 2,
       screenSize.height / 2,
     );
     final adjustedTarget = screenCenter;
 
-    _bookPositionAnimation = Tween<Offset>(
+    _positionAnimation = Tween<Offset>(
       begin: widget.position,
       end: adjustedTarget,
-    ).animate(
-      CurvedAnimation(parent: _bookController, curve: Curves.easeInOut),
-    );
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+  }
+
+  void _setScaleAnimation() {
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: animatedScale,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
   }
 
   Positioned _bookSpineWidget() {
@@ -110,22 +115,26 @@ class AnimatedBookWidgetState extends State<AnimatedBookWidget>
   }
 
   Transform _bookAnimation(child) {
-    return Transform.translate(
-      offset: _bookPositionAnimation.value,
-      child: Transform(
-        alignment: Alignment.centerLeft,
-        transform:
-            Matrix4.identity()
-              ..setEntry(3, 2, 0.001)
-              ..rotateY(_bookRotationAnimation.value),
-        child: child,
+    return Transform.scale(
+      scale: _scaleAnimation.value,
+      alignment: Alignment.centerLeft,
+      child: Transform.translate(
+        offset: _positionAnimation.value,
+        child: Transform(
+          alignment: Alignment.centerLeft,
+          transform:
+              Matrix4.identity()
+                ..setEntry(3, 2, 0.001)
+                ..rotateY(_rotationAnimation.value),
+          child: child,
+        ),
       ),
     );
   }
 
   AnimatedBuilder _buildAnimatedBook() {
     return AnimatedBuilder(
-      animation: _bookController,
+      animation: _controller,
       builder: (context, child) {
         return _bookAnimation(child);
       },
