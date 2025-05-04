@@ -1,4 +1,5 @@
 import 'package:bookshelf/book/show.dart';
+import 'package:bookshelf/book/widgets/book_helpers.dart';
 import 'package:bookshelf/book/widgets/book_item.dart';
 import 'package:bookshelf/book/widgets/book_overlay.dart';
 import 'package:flutter/material.dart';
@@ -45,19 +46,6 @@ class _IndexPageState extends State<Index> {
     );
   }
 
-  Container bookSpineContainer() {
-    return Container(width: 10, height: 150, color: Colors.brown);
-  }
-
-  Container bookCoverContainer() {
-    return Container(
-      width: 100,
-      height: 150,
-      color: Colors.blue,
-      child: Center(child: Text("本")),
-    );
-  }
-
   void _navigateToShow(BuildContext context, Book book) async {
     Navigator.pop(context);
     await Navigator.of(context).push(
@@ -95,7 +83,7 @@ class _IndexPageState extends State<Index> {
     );
   }
 
-  void openBookAnimation(Book book) {
+  void openBookAnimation(Book book, Offset position) {
     final overlay = Overlay.of(context);
     late OverlayEntry entry;
 
@@ -103,6 +91,7 @@ class _IndexPageState extends State<Index> {
       builder:
           (context) => AnimatedBookWidget(
             book: book,
+            position: position,
             onClose: () {
               entry.remove();
             },
@@ -115,15 +104,26 @@ class _IndexPageState extends State<Index> {
 
   InkWell _buildBookItem(Book book) {
     if (_readBook.contains(book)) {
-      return InkWell(child: SizedBox(width: 10, height: 150));
+      // 読まれている本であるため、領域のみ確保(表示なし)
+      return InkWell(
+        child: SizedBox(
+          width: resizeBookThickness(book),
+          height: resizeBookHeight(book),
+        ),
+      );
     }
-    final bookItem = BookItem(book: book);
+    final itemKey = GlobalKey();
+    final bookItem = BookItem(book: book, itemKey: itemKey);
     return InkWell(
       onTap: () {
         setState(() {
           _readBook.add(book); // 非表示にする
         });
-        openBookAnimation(book);
+        final context = itemKey.currentContext;
+        final box = context!.findRenderObject() as RenderBox;
+        final position = box.localToGlobal(Offset.zero);
+        debugPrint(position.toString());
+        openBookAnimation(book, position);
       },
       child: bookItem,
     );

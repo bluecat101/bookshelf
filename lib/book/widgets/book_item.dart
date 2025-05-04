@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 
 class BookItem extends StatefulWidget {
   final Book book;
+  final GlobalKey itemKey;
 
-  const BookItem({required this.book});
-
+  const BookItem({super.key, required this.book, required this.itemKey});
   @override
-  _BookItemState createState() => _BookItemState();
+  BookItemState createState() => BookItemState();
 }
 
-class _BookItemState extends State<BookItem> {
+class BookItemState extends State<BookItem> {
   late final Book book;
 
   @override
@@ -22,30 +22,11 @@ class _BookItemState extends State<BookItem> {
 
   @override
   Widget build(BuildContext context) {
-    return _bookItemInfo();
-  }
-
-  SizedBox bookInBookshelf() {
     return SizedBox(
-      width: 110,
-      height: 150,
-      child: Stack(
-        children: [
-          // 背表紙
-          Positioned(left: 0, child: bookSpineContainer()),
-          // 表紙
-          Positioned(left: 10, child: bookCoverContainer()),
-        ],
-      ),
-    );
-  }
-
-  Container _bookItemInfo() {
-    final screenHeight = MediaQuery.of(context).size.height;
-    return Container(
-      width: 10,
-      height: screenHeight / 2 - AppBar().preferredSize.height,
-      child: bookInBookshelf(),
+      key: widget.itemKey,
+      width: resizeBookThickness(book),
+      height: resizeBookHeight(book),
+      child: bookSpineContainer(book),
     );
   }
 }

@@ -6,33 +6,38 @@ import 'package:flutter/material.dart';
 
 class AnimatedBookWidget extends StatefulWidget {
   final Book book;
+  final Offset position;
   final VoidCallback onClose;
   final Function(Book book) showDialog;
 
   const AnimatedBookWidget({
+    super.key,
     required this.book,
+    required this.position,
     required this.onClose,
     required this.showDialog,
   });
 
   @override
-  _AnimatedBookWidgetState createState() => _AnimatedBookWidgetState();
+  AnimatedBookWidgetState createState() => AnimatedBookWidgetState();
 }
 
-class _AnimatedBookWidgetState extends State<AnimatedBookWidget>
+class AnimatedBookWidgetState extends State<AnimatedBookWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _bookController;
   late Animation<double> _bookRotationAnimation;
   late Animation<Offset> _bookPositionAnimation;
+  late final Book book;
 
   @override
   void initState() {
     super.initState();
-    setAnimationController();
-    setRotationAnimation();
+    book = widget.book;
+    _setAnimationController();
+    _setRotationAnimation();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      setPositionAnimation();
+      _setPositionAnimation();
     });
     _bookController.forward();
   }
@@ -40,7 +45,7 @@ class _AnimatedBookWidgetState extends State<AnimatedBookWidget>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    setPositionAnimation();
+    _setPositionAnimation();
   }
 
   @override
@@ -54,49 +59,54 @@ class _AnimatedBookWidgetState extends State<AnimatedBookWidget>
     return IgnorePointer(ignoring: false, child: _buildAnimatedBook());
   }
 
-  void setAnimationController() {
+  void _setAnimationController() {
     _bookController = AnimationController(
       duration: Duration(seconds: 2),
       vsync: this,
     );
   }
 
-  void setRotationAnimation() {
+  void _setRotationAnimation() {
     _bookRotationAnimation = Tween<double>(
       begin: 0,
       end: pi / 2,
     ).animate(CurvedAnimation(parent: _bookController, curve: Curves.linear));
   }
 
-  void setPositionAnimation() {
+  void _setPositionAnimation() {
     final screenSize = MediaQuery.of(context).size;
-    final screenCenter = Offset(screenSize.width / 2, screenSize.height / 2);
+    final screenCenter = Offset(
+      screenSize.width / 2 -
+          resizeBookThickness(book) +
+          resizeBookWidth(book) / 2,
+      screenSize.height / 2,
+    );
     final adjustedTarget = screenCenter;
 
     _bookPositionAnimation = Tween<Offset>(
-      begin: Offset.zero,
+      begin: widget.position,
       end: adjustedTarget,
     ).animate(
       CurvedAnimation(parent: _bookController, curve: Curves.easeInOut),
     );
   }
 
-  Positioned bookSpineWidget() {
-    return Positioned(left: 0, child: bookSpineContainer());
+  Positioned _bookSpineWidget() {
+    return Positioned(left: 0, child: bookSpineContainer(book));
   }
 
-  Positioned bookCoverWidget() {
+  Positioned _bookCoverWidget() {
     return Positioned(
-      left: 10,
+      left: resizeBookThickness(book),
       child: Transform(
         alignment: Alignment.centerLeft,
         transform: Matrix4.identity()..setRotationY(-pi / 2),
-        child: bookCoverContainer(),
+        child: bookCoverContainer(book),
       ),
     );
   }
 
-  Transform bookAnimation(child) {
+  Transform _bookAnimation(child) {
     return Transform.translate(
       offset: _bookPositionAnimation.value,
       child: Transform(
@@ -114,12 +124,12 @@ class _AnimatedBookWidgetState extends State<AnimatedBookWidget>
     return AnimatedBuilder(
       animation: _bookController,
       builder: (context, child) {
-        return bookAnimation(child);
+        return _bookAnimation(child);
       },
       child: SizedBox(
-        width: 110,
-        height: 150,
-        child: Stack(children: [bookSpineWidget(), bookCoverWidget()]),
+        width: resizeBookWidth(book),
+        height: resizeBookHeight(book),
+        child: Stack(children: [_bookSpineWidget(), _bookCoverWidget()]),
       ),
     );
   }
