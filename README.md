@@ -19,3 +19,6 @@ samples, guidance on mobile development, and a full API reference.
 本サービスで提供するメタデータの一部は、国立国会図書館サーチのAPIから取得しています。
 一部データは書誌情報提供機関（例：都道府県立図書館、大学図書館、民間書誌サービスなど）によって提供されています。
 ライセンスは CC BY 4.0 です。
+
+# 白か黒を判定するコードの参考
+https://zenn.dev/slowhand/articles/80bfe9e6b572c0

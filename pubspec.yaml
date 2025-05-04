@@ -17,6 +17,7 @@ dependencies:
   html: ^0.15.5+1
   mockito: ^5.4.5
   get_it: ^8.0.3
+  palette_generator: ^0.3.3+6
   
 
 dev_dependencies:

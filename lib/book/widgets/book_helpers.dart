@@ -1,12 +1,72 @@
+import 'dart:math';
+
 import 'package:bookshelf/book/model/book.dart';
 import 'package:bookshelf/helper.dart';
 import 'package:flutter/material.dart';
+import 'package:palette_generator/palette_generator.dart';
 
-Container bookSpineContainer(book) {
-  return Container(
-    width: resizeBookThickness(book),
-    height: resizeBookHeight(book),
-    color: Colors.brown,
+FutureBuilder bookSpineContainer(book) {
+  // 画像から主な色を取得
+  Future<Color> getDominantColor(String? imageUrl) async {
+    if (imageUrl != null && await existUrl(imageUrl)) {
+      final paletteGenerator = await PaletteGenerator.fromImageProvider(
+        NetworkImage(imageUrl),
+      );
+      return paletteGenerator.dominantColor?.color ?? Colors.grey;
+    }
+    return Colors.white;
+  }
+
+  // 黒系の色かを判定
+  bool isDarkColor(Color color) {
+    final r = color.r;
+    final g = color.g;
+    final b = color.b;
+    // r,g,bが0~1.0であるため255をかける。その他の計算はサイトを参考
+    return ((((r * 255 * 299) + (g * 255 * 587) + (b * 255 * 114)) / 1000) <
+        128);
+  }
+
+  const minimumFontSize = 10;
+  final fontSize = max(
+    resizeBookHeight(book) / book.title.length,
+    minimumFontSize,
+  );
+  final spineTitle = book.title.substring(
+    0,
+    min(fontSize / 1.4, book.title.length - 1).toInt(),
+  );
+
+  return FutureBuilder<Color>(
+    future: getDominantColor(book.imageUrl),
+    builder: (BuildContext context, AsyncSnapshot<Color> snapshot) {
+      var spineColor = Colors.white;
+      if (snapshot.connectionState == ConnectionState.waiting ||
+          snapshot.hasError) {
+        spineColor = Colors.white;
+      } else {
+        spineColor = snapshot.data!;
+      }
+      final textColor = isDarkColor(spineColor) ? Colors.white : Colors.black;
+      return Container(
+        width: resizeBookThickness(book),
+        height: resizeBookHeight(book),
+        color: spineColor,
+        child: Column(
+          children: // 縦書きにする
+              spineTitle.split('').map<Widget>((char) {
+                return Text(
+                  char,
+                  style: TextStyle(
+                    fontSize: fontSize.toDouble(),
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  ),
+                );
+              }).toList(),
+        ),
+      );
+    },
   );
 }
 
