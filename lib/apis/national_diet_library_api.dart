@@ -1,6 +1,7 @@
 import 'package:xml/xml.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
+import 'package:bookshelf/helper.dart';
 
 class NdlBook {
   final String title;
@@ -14,14 +15,6 @@ class NdlBook {
     required this.link,
     this.imageUrl,
   });
-  static Future<bool> _existUrl(String url) async {
-    try {
-      final response = await http.head(Uri.parse(url));
-      return response.statusCode == 200;
-    } catch (_) {
-      return false;
-    }
-  }
 
   static bool _isUniqueTitle(String newTitle, List<NdlBook> books) {
     return books.every((book) => book.title != newTitle);
@@ -65,7 +58,7 @@ class NdlBook {
           break;
         }
       }
-      if (imageUrl != null && !(await _existUrl(imageUrl))) {
+      if (imageUrl != null && !(await existUrl(imageUrl))) {
         imageUrl = null;
       }
       ndlBooks.add(
