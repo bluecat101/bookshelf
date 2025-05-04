@@ -37,7 +37,12 @@ class _NewBookPageState extends State<NewBook> {
   void _navigateToIndex(BuildContext context) {
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
-        pageBuilder: (_, __, ___) => Index(),
+        pageBuilder:
+            (_, __, ___) => Index(
+              booksFuture: Hive.openBox<Book>(
+                'book',
+              ).then((box) => box.values.toList()),
+            ),
         transitionDuration: Duration.zero, // 遷移時のアニメーションをなくす
       ),
     );

@@ -3,11 +3,11 @@ import 'package:bookshelf/book/widgets/book_helpers.dart';
 import 'package:bookshelf/book/widgets/book_item.dart';
 import 'package:bookshelf/book/widgets/book_overlay.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'model/book.dart';
 
 class Index extends StatefulWidget {
-  const Index({super.key});
+  final Future<List<Book>> booksFuture;
+  const Index({super.key, required this.booksFuture});
 
   @override
   State<Index> createState() => _IndexPageState();
@@ -15,7 +15,6 @@ class Index extends StatefulWidget {
 
 class _IndexPageState extends State<Index> {
   final Set<Book> _readBook = {};
-
   @override
   void initState() {
     super.initState();
@@ -25,22 +24,23 @@ class _IndexPageState extends State<Index> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Index')),
-      body: FutureBuilder<Box<Book>>(
-        future: Hive.openBox<Book>('book'), // 非同期でHiveにアクセス
-
-        builder: (BuildContext context, AsyncSnapshot<Box<Book>> snapshot) {
-          if (!snapshot.hasData) {
-            // 非同期が完了していなければ、ローディング画面を表示する
-            return Center(child: CircularProgressIndicator());
+      body: FutureBuilder<List<Book>>(
+        future: widget.booksFuture,
+        builder: (BuildContext context, AsyncSnapshot<List<Book>> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator();
+          } else if (snapshot.hasError) {
+            return Text('エラー: ${snapshot.error}');
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Text('本が見つかりません');
+          } else {
+            final books = snapshot.data!;
+            return Wrap(
+              spacing: 8.0,
+              runSpacing: 8.0,
+              children: _buildBookListItems(books),
+            );
           }
-
-          final box = snapshot.data!; // 非同期でアクセスしたデータを取得
-          final books = box.values.toList();
-          return Wrap(
-            spacing: 8.0,
-            runSpacing: 8.0,
-            children: _buildBookListItems(books),
-          );
         },
       ),
     );

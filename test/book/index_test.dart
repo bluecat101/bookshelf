@@ -7,54 +7,41 @@ import 'package:hive/hive.dart';
 import 'package:bookshelf/book/model/book.dart';
 
 // ダミーデータの作成
-Future<void> createDummyData() async {
-  final bookshelf = await Hive.openBox<Book>('book');
-  final book = Book(
-    title: 'sample title',
-    author: 'sample author',
-    pages: 1,
-    height: 1,
-    width: 1,
-  );
-  bookshelf.add(book);
-}
-
-// Hiveを初期化する
-initHive() {
-  final hiveDirPath = 'test/book/model/hive_test';
-  setUpAll(() async {
-    // テスト用の一時ディレクトリを用意
-    Hive.init(hiveDirPath);
-    Hive.registerAdapter(BookAdapter());
-    // Boxを開く
-    await Hive.openBox<Book>('book');
-    // データを作成する
-    await createDummyData();
-  });
-
-  // 終了後にHiveを閉じる
-  tearDownAll(() async {
-    final testDir = Directory(hiveDirPath);
-    if (testDir.existsSync()) {
-      testDir.deleteSync(recursive: true); // ← 完全削除
-    }
-  });
+Future<List<Book>> mockBooks() {
+  final books = [
+    Book(
+      title: 'sample title1',
+      author: 'sample author1',
+      pages: 1,
+      height: 1,
+      width: 1,
+      imageUrl: 'https://picsum.photos/200/300',
+    ),
+    Book(
+      title: 'sample title1',
+      author: 'sample author1',
+      pages: 2,
+      height: 2,
+      width: 2,
+      comment: 'sample comment',
+      imageUrl: 'https://picsum.photos/200/300',
+    ),
+  ];
+  return Future.value(books);
 }
 
 Future<void> displayDialog(WidgetTester tester) async {
-  await tester.pumpWidget(MaterialApp(home: Index()));
+  await tester.pumpWidget(MaterialApp(home: Index(booksFuture: mockBooks())));
   await tester.pumpAndSettle(); // タップする前に同期状態にする
   await tester.tap(find.byType(InkWell).at(0)); // 先頭の要素をタップする
   await tester.pumpAndSettle();
 }
 
 void main() {
-  initHive(); // Hiveの初期化 & データの作成
   testWidgets('表示されている個数が合っている', (WidgetTester tester) async {
-    await tester.pumpWidget(MaterialApp(home: Index()));
-    final bookshelf = await Hive.openBox<Book>('book');
-    final books = bookshelf.values.toList();
+    await tester.pumpWidget(MaterialApp(home: Index(booksFuture: mockBooks())));
     await tester.pumpAndSettle();
+    final books = await mockBooks();
     expect(find.byType(InkWell), findsNWidgets(books.length));
   });
 

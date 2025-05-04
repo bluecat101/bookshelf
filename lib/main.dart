@@ -64,9 +64,16 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             OutlinedButton(
               onPressed: () {
-                Navigator.of(
-                  context,
-                ).push(MaterialPageRoute(builder: (context) => Index()));
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder:
+                        (context) => Index(
+                          booksFuture: Hive.openBox<Book>(
+                            'book',
+                          ).then((box) => box.values.toList()),
+                        ),
+                  ),
+                );
               },
               child: Text('本棚を見る'),
             ),
