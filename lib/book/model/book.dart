@@ -1,10 +1,6 @@
 import 'package:hive/hive.dart';
-import 'dart:typed_data';
-
-//Entity生成用
 part 'book.g.dart';
 
-//モデルごとの識別子の設定
 @HiveType(typeId: 1)
 class Book {
   Book({
@@ -14,7 +10,7 @@ class Book {
     required this.height,
     required this.width,
     this.comment,
-    this.image,
+    this.imageUrl,
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
   @HiveField(0)
@@ -35,9 +31,8 @@ class Book {
   @HiveField(5)
   String? comment;
 
-  // 数が増えると画像をここに保存せずにpathを保存し呼び出す。
   @HiveField(6)
-  Uint8List? image;
+  String? imageUrl;
 
   @HiveField(7)
   DateTime createdAt;

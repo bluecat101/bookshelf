@@ -23,7 +23,7 @@ class BookAdapter extends TypeAdapter<Book> {
       height: fields[3] as int,
       width: fields[4] as int,
       comment: fields[5] as String?,
-      image: fields[6] as Uint8List?,
+      imageUrl: fields[6] as String?,
       createdAt: fields[7] as DateTime?,
     );
   }
@@ -45,7 +45,7 @@ class BookAdapter extends TypeAdapter<Book> {
       ..writeByte(5)
       ..write(obj.comment)
       ..writeByte(6)
-      ..write(obj.image)
+      ..write(obj.imageUrl)
       ..writeByte(7)
       ..write(obj.createdAt);
   }
