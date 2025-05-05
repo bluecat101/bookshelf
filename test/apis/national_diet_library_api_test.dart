@@ -37,7 +37,7 @@ void main() {
     test('apiを取得後NdlBookの型である', () async {
       final bookFetcher = BookFetcher();
       final size = await bookFetcher.fetchBookSize(getSampleBook());
-      expect(size, isA<({int? width, int? height, int? page})>());
+      expect(size, isA<BookSize>());
     });
   });
 }
