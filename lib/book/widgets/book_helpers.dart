@@ -38,7 +38,7 @@ FutureBuilder bookSpineContainer(book) {
   );
 
   return FutureBuilder<Color>(
-    future: getDominantColor(book.imageUrl),
+    future: getDominantColor(book.coverImageUrl),
     builder: (BuildContext context, AsyncSnapshot<Color> snapshot) {
       var spineColor = Colors.white;
       if (snapshot.connectionState == ConnectionState.waiting ||
@@ -74,7 +74,9 @@ Widget bookCoverContainer(Book book) {
   final width = resizeBookWidth(book);
   final height = resizeBookHeight(book);
   final Future<bool> urlCheck =
-      book.imageUrl == null ? Future.value(false) : existUrl(book.imageUrl!);
+      book.coverImageUrl == null
+          ? Future.value(false)
+          : existUrl(book.coverImageUrl!);
   return FutureBuilder<bool>(
     future: urlCheck,
     builder: (context, snapshot) {
@@ -88,7 +90,7 @@ Widget bookCoverContainer(Book book) {
       }
 
       final urlExists = snapshot.data!;
-      if (book.imageUrl == null || !urlExists) {
+      if (book.coverImageUrl == null || !urlExists) {
         return Container(
           width: width,
           height: height,
@@ -100,7 +102,7 @@ Widget bookCoverContainer(Book book) {
         );
       } else {
         return Image.network(
-          book.imageUrl!,
+          book.coverImageUrl!,
           width: width,
           height: height,
           fit: BoxFit.fitHeight,

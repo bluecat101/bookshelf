@@ -10,7 +10,9 @@ class Book {
     required this.height,
     required this.width,
     this.comment,
-    this.imageUrl,
+    this.coverImageUrl,
+    this.coverImagePath,
+    this.spineImagePath,
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
   @HiveField(0)
@@ -32,9 +34,15 @@ class Book {
   String? comment;
 
   @HiveField(6)
-  String? imageUrl;
+  String? coverImageUrl;
 
   @HiveField(7)
+  String? coverImagePath;
+
+  @HiveField(8)
+  String? spineImagePath;
+
+  @HiveField(9)
   DateTime createdAt;
 
   static String? validateTitle(String? value) {

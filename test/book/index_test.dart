@@ -15,7 +15,7 @@ Future<List<Book>> mockBooks() {
       pages: 1,
       height: 1,
       width: 1,
-      imageUrl: 'https://picsum.photos/200/300',
+      coverImageUrl: 'https://picsum.photos/200/300',
     ),
     Book(
       title: 'sample title1',
@@ -24,7 +24,7 @@ Future<List<Book>> mockBooks() {
       height: 2,
       width: 2,
       comment: 'sample comment',
-      imageUrl: 'https://picsum.photos/200/300',
+      coverImageUrl: 'https://picsum.photos/200/300',
     ),
   ];
   return Future.value(books);

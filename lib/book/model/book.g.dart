@@ -23,15 +23,17 @@ class BookAdapter extends TypeAdapter<Book> {
       height: fields[3] as int,
       width: fields[4] as int,
       comment: fields[5] as String?,
-      imageUrl: fields[6] as String?,
-      createdAt: fields[7] as DateTime?,
+      coverImageUrl: fields[6] as String?,
+      coverImagePath: fields[7] as String?,
+      spineImagePath: fields[8] as String?,
+      createdAt: fields[9] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Book obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.title)
       ..writeByte(1)
@@ -45,8 +47,12 @@ class BookAdapter extends TypeAdapter<Book> {
       ..writeByte(5)
       ..write(obj.comment)
       ..writeByte(6)
-      ..write(obj.imageUrl)
+      ..write(obj.coverImageUrl)
       ..writeByte(7)
+      ..write(obj.coverImagePath)
+      ..writeByte(8)
+      ..write(obj.spineImagePath)
+      ..writeByte(9)
       ..write(obj.createdAt);
   }
 
