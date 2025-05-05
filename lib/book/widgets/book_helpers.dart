@@ -27,25 +27,32 @@ FutureBuilder bookSpineContainer(book) {
         128);
   }
 
-  // 背表紙のタイトルの文字サイズの計算
-  const minimumFontSize = 10;
-  final bookSpineTitleLength = book.title.length;
-  final paddingSize = 0.2;
-  // 余白はfontSize*paddingSizeとする
-  // 以下の式は、widgetの高さ = 本のタイトルの長さ*(fontSize+余白)+余白についてfontSizeを解く式
-  final preFontSize =
-      resizeBookHeight(book) /
-      (bookSpineTitleLength * (1 + paddingSize) + paddingSize);
-  final fontSize = max(preFontSize, minimumFontSize);
-  final padding = fontSize * paddingSize;
-  // 背表紙のタイトルの文字数の計算
-  // 以下の式は、widgetの高さ = 本のタイトルの長さ*(fontSize+余白)+余白について本のタイトルの長さを解く式
-  final charNum =
-      ((resizeBookHeight(book) - padding) / (fontSize + padding)).toInt();
-  final String bookSpineTitle =
-      fontSize == minimumFontSize
-          ? book.title.substring(0, charNum)
+  // 背表紙のタイトルを調整する（省略あり）
+  const double minimumFontSize = 10;
+  const double paddingRatio = 0.2;
+
+  /// 高さと文字数から適切なフォントサイズを計算（最小サイズ考慮）
+  double calculateFontSize(double height, int charCount) {
+    // 以下の式は、widgetの高さ = 文字数*(fontSize+余白)+余白についてfontSizeを解く式
+    final fontSize = height / (charCount * (1 + paddingRatio) + paddingRatio);
+    return fontSize < minimumFontSize ? minimumFontSize : fontSize;
+  }
+
+  /// フォントサイズと高さから、収まる最大文字数を計算
+  int calculateMaxCharCount(double height, double fontSize) {
+    final padding = fontSize * paddingRatio;
+    // 以下の式は、widgetの高さ = 文字数*(fontSize+余白)+余白について文字数を解く式
+    return ((height - padding) / (fontSize + padding)).floor();
+  }
+
+  final fontSize = calculateFontSize(resizeBookHeight(book), book.title.length);
+  final maxChars = calculateMaxCharCount(resizeBookHeight(book), fontSize);
+  // 背表紙のテキスト
+  final bookSpineTitle =
+      fontSize == minimumFontSize && book.title.length > maxChars
+          ? book.title.substring(0, maxChars)
           : book.title;
+
   return FutureBuilder<Color>(
     future: getDominantColor(book.coverImageUrl),
     builder: (BuildContext context, AsyncSnapshot<Color> snapshot) {
@@ -68,7 +75,7 @@ FutureBuilder bookSpineContainer(book) {
                   char,
                   style: TextStyle(
                     fontSize: fontSize.toDouble(),
-                    height: (1 + paddingSize),
+                    height: (1 + paddingRatio),
                     fontWeight: FontWeight.bold,
                     color: textColor,
                   ),
