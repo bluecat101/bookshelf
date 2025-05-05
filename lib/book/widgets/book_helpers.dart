@@ -27,16 +27,25 @@ FutureBuilder bookSpineContainer(book) {
         128);
   }
 
+  // 背表紙のタイトルの文字サイズの計算
   const minimumFontSize = 10;
-  final fontSize = max(
-    resizeBookHeight(book) / book.title.length,
-    minimumFontSize,
-  );
-  final spineTitle = book.title.substring(
-    0,
-    min(fontSize / 1.4, book.title.length - 1).toInt(),
-  );
-
+  final bookSpineTitleLength = book.title.length;
+  final paddingSize = 0.2;
+  // 余白はfontSize*paddingSizeとする
+  // 以下の式は、widgetの高さ = 本のタイトルの長さ*(fontSize+余白)+余白についてfontSizeを解く式
+  final preFontSize =
+      resizeBookHeight(book) /
+      (bookSpineTitleLength * (1 + paddingSize) + paddingSize);
+  final fontSize = max(preFontSize, minimumFontSize);
+  final padding = fontSize * paddingSize;
+  // 背表紙のタイトルの文字数の計算
+  // 以下の式は、widgetの高さ = 本のタイトルの長さ*(fontSize+余白)+余白について本のタイトルの長さを解く式
+  final charNum =
+      ((resizeBookHeight(book) - padding) / (fontSize + padding)).toInt();
+  final String bookSpineTitle =
+      fontSize == minimumFontSize
+          ? book.title.substring(0, charNum)
+          : book.title;
   return FutureBuilder<Color>(
     future: getDominantColor(book.coverImageUrl),
     builder: (BuildContext context, AsyncSnapshot<Color> snapshot) {
@@ -54,11 +63,12 @@ FutureBuilder bookSpineContainer(book) {
         color: spineColor,
         child: Column(
           children: // 縦書きにする
-              spineTitle.split('').map<Widget>((char) {
+              bookSpineTitle.split('').map<Widget>((char) {
                 return Text(
                   char,
                   style: TextStyle(
                     fontSize: fontSize.toDouble(),
+                    height: (1 + paddingSize),
                     fontWeight: FontWeight.bold,
                     color: textColor,
                   ),
@@ -117,13 +127,13 @@ const double heightFactor = 5;
 const double pagesFactor = 1 / 30;
 
 double resizeBookWidth(Book book) {
-  return book.width * widthFactor;
+  return max(book.width, 15) * widthFactor;
 }
 
 double resizeBookHeight(Book book) {
-  return book.height * heightFactor;
+  return max(book.height, 15) * heightFactor;
 }
 
 double resizeBookThickness(Book book) {
-  return book.pages * pagesFactor;
+  return max(book.pages, 300) * pagesFactor;
 }
