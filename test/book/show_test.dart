@@ -98,6 +98,26 @@ void main() {
     await changeFormText(tester, 'width', changedText);
     expect(find.text('前回の内容: ${book.width}'), findsOneWidget);
   });
+  testWidgets('commentのフォームが存在するか確認', (WidgetTester tester) async {
+    final book = mockBook();
+    await tester.pumpWidget(MaterialApp(home: Show(book: book)));
+    expect(find.widgetWithText(TextFormField, 'comment'), findsOneWidget);
+  });
+
+  testWidgets('表紙の画像をuploadできる(更新は含まない)', (WidgetTester tester) async {
+    // 表紙の画像をアップロードするボタンが表示されている
+    // 選択した画像のファイル名が表示される(mockCoverImageFileを使う)
+    // final fieldFinder = find.widgetWithText(TextButton, '表紙の画像をアップロードする');
+    final filePath = '';
+    expect(find.text(filePath), findsOneWidget);
+  });
+  testWidgets('背表紙の画像をuploadできる(更新は含まない)', (WidgetTester tester) async {
+    // 背表紙の画像をアップロードするボタンが表示されている
+    // 選択した画像のファイル名が表示される(mockSpineImageFileを使う)
+    // final fieldFinder = find.widgetWithText(TextButton, '背表紙の画像をアップロードする');
+    final filePath = '';
+    expect(find.text(filePath), findsOneWidget);
+  });
   testWidgets('データを更新できるか', (WidgetTester tester) async {
     final book = await getBookFirst();
     final updatedTitle = 'second title';
@@ -105,6 +125,8 @@ void main() {
     final updatedPages = 2;
     final updatedHeight = 2;
     final updatedWidth = 2;
+    final updatedCoverImagePath = '';
+    final updatedSpineImagePath = '';
     await tester.pumpWidget(MaterialApp(home: Show(book: book)));
     await changeFormText(tester, 'title', updatedTitle);
     await changeFormText(tester, 'author', updatedAuthor);
@@ -113,11 +135,13 @@ void main() {
     await changeFormText(tester, 'width', updatedWidth.toString());
     await tester.tap(find.widgetWithText(ElevatedButton, '更新する')); // 更新ボタンをクリック
     await tester.pumpAndSettle();
-    final books = bookshelf.values.toList();
-    expect(books[0].title, updatedTitle);
-    expect(books[0].author, updatedAuthor);
-    expect(books[0].pages, updatedPages);
-    expect(books[0].height, updatedHeight);
-    expect(books[0].width, updatedWidth);
+    final updatedBook = await getBookFirst();
+    expect(updatedBook.title, updatedTitle);
+    expect(updatedBook.author, updatedAuthor);
+    expect(updatedBook.pages, updatedPages);
+    expect(updatedBook.height, updatedHeight);
+    expect(updatedBook.width, updatedWidth);
+    expect(updatedBook.coverImagePath, updatedCoverImagePath);
+    expect(updatedBook.spineImagePath, updatedSpineImagePath);
   });
 }
