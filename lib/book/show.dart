@@ -130,70 +130,72 @@ class _ShowPageState extends State<Show> {
     // UploadedFileStatus bookSpineImageStatus = UploadedFileStatus();
     return Scaffold(
       appBar: AppBar(title: Text('show')),
-      body: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            generateTextFormField(_titleController, 'title', book.title),
-            generateTextFormField(_authorController, 'author', book.author),
-            generateTextFormField(
-              _pageController,
-              'page',
-              book.pages.toString(),
-            ),
-            generateTextFormField(
-              _heightController,
-              'height',
-              book.height.toString(),
-            ),
-            generateTextFormField(
-              _widthController,
-              'width',
-              book.width.toString(),
-            ),
-            generateTextFormField(
-              _widthController,
-              'width',
-              book.width.toString(),
-            ),
-            TextField(
-              // commentのフォーム
-              keyboardType: TextInputType.multiline,
-              maxLines: null,
-              decoration: InputDecoration(
-                isDense: true,
-                contentPadding: const EdgeInsets.all(12),
+      body: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              generateTextFormField(_titleController, 'title', book.title),
+              generateTextFormField(_authorController, 'author', book.author),
+              generateTextFormField(
+                _pageController,
+                'page',
+                book.pages.toString(),
               ),
-            ),
-            FileUploadWidget(label: '表紙'),
-            FileUploadWidget(label: '背表紙'),
-            Row(
-              children: [
-                ElevatedButton(
-                  child: Text('戻る'),
-                  onPressed: () => Navigator.pop(context),
+              generateTextFormField(
+                _heightController,
+                'height',
+                book.height.toString(),
+              ),
+              generateTextFormField(
+                _widthController,
+                'width',
+                book.width.toString(),
+              ),
+              generateTextFormField(
+                _widthController,
+                'width',
+                book.width.toString(),
+              ),
+              TextField(
+                // commentのフォーム
+                keyboardType: TextInputType.multiline,
+                maxLines: null,
+                decoration: InputDecoration(
+                  isDense: true,
+                  contentPadding: const EdgeInsets.all(12),
                 ),
-                ElevatedButton(
-                  child: Text('削除する'),
-                  onPressed: () async {
-                    if (await _deleteBook(book)) {
-                      if (!mounted) return;
-                      Navigator.pop(context);
-                    }
-                  },
-                ),
-                ElevatedButton(
-                  child: Text('更新する'),
-                  onPressed: () async {
-                    if (await _onSubmit(book)) {
-                      if (!mounted) return;
-                      Navigator.pop(context);
-                    }
-                  },
-                ),
-              ],
-            ),
-          ],
+              ),
+              FileUploadWidget(label: '表紙'),
+              FileUploadWidget(label: '背表紙'),
+              Row(
+                children: [
+                  ElevatedButton(
+                    child: Text('戻る'),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  ElevatedButton(
+                    child: Text('削除する'),
+                    onPressed: () async {
+                      if (await _deleteBook(book)) {
+                        if (!mounted) return;
+                        Navigator.pop(context);
+                      }
+                    },
+                  ),
+                  ElevatedButton(
+                    child: Text('更新する'),
+                    onPressed: () async {
+                      if (await _onSubmit(book)) {
+                        if (!mounted) return;
+                        Navigator.pop(context);
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
