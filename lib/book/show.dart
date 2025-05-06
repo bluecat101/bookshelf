@@ -1,4 +1,5 @@
 import 'package:bookshelf/book/model/book.dart';
+import 'package:bookshelf/book/widgets/file_upload.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
@@ -125,6 +126,8 @@ class _ShowPageState extends State<Show> {
   @override
   Widget build(BuildContext context) {
     final book = widget.book;
+    // UploadedFileStatus bookCoverImageStatus = UploadedFileStatus();
+    // UploadedFileStatus bookSpineImageStatus = UploadedFileStatus();
     return Scaffold(
       appBar: AppBar(title: Text('show')),
       body: Form(
@@ -136,18 +139,34 @@ class _ShowPageState extends State<Show> {
             generateTextFormField(
               _pageController,
               'page',
-              book.pages?.toString(),
+              book.pages.toString(),
             ),
             generateTextFormField(
               _heightController,
               'height',
-              book.height?.toString(),
+              book.height.toString(),
             ),
             generateTextFormField(
               _widthController,
               'width',
-              book.width?.toString(),
+              book.width.toString(),
             ),
+            generateTextFormField(
+              _widthController,
+              'width',
+              book.width.toString(),
+            ),
+            TextField(
+              // commentのフォーム
+              keyboardType: TextInputType.multiline,
+              maxLines: null,
+              decoration: InputDecoration(
+                isDense: true,
+                contentPadding: const EdgeInsets.all(12),
+              ),
+            ),
+            FileUploadWidget(label: '表紙'),
+            FileUploadWidget(label: '背表紙'),
             Row(
               children: [
                 ElevatedButton(
