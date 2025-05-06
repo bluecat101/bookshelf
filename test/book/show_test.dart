@@ -62,7 +62,7 @@ initHive() {
   });
 }
 
-Future<void> changeFormText(
+Future<void> changeTextFormField(
   WidgetTester tester,
   String targetFormLabel,
   String changedText,
@@ -99,53 +99,59 @@ void main() {
   initHive();
   testWidgets('タイトルのフォームが機能するかの確認', (WidgetTester tester) async {
     final book = dummyBook();
+    final expectedText = '前回の内容: ${book.title}';
     final changedText = 'second title';
 
     await tester.pumpWidget(
       MaterialApp(home: Show(book: book, fileUploader: MockFileUploader())),
     );
-    await changeFormText(tester, 'title', changedText);
-    expect(find.text('前回の内容: ${book.title}'), findsOneWidget);
+    await changeTextFormField(tester, 'title', changedText);
+    expect(find.text(expectedText), findsOneWidget);
   });
   testWidgets('著者のフォームが機能するかの確認', (WidgetTester tester) async {
     final book = dummyBook();
+    final expectedText = '前回の内容: ${book.author}';
+
     final changedText = 'second author';
 
     await tester.pumpWidget(
       MaterialApp(home: Show(book: book, fileUploader: MockFileUploader())),
     );
-    await changeFormText(tester, 'author', changedText);
-    expect(find.text('前回の内容: ${book.author}'), findsOneWidget);
+    await changeTextFormField(tester, 'author', changedText);
+    expect(find.text(expectedText), findsOneWidget);
   });
   testWidgets('ページのフォームが機能するかの確認', (WidgetTester tester) async {
     final book = dummyBook();
+    final expectedText = '前回の内容: ${book.pages}';
     final changedText = 'second pages';
 
     await tester.pumpWidget(
       MaterialApp(home: Show(book: book, fileUploader: MockFileUploader())),
     );
-    await changeFormText(tester, 'page', changedText);
-    expect(find.text('前回の内容: ${book.pages}'), findsOneWidget);
+    await changeTextFormField(tester, 'page', changedText);
+    expect(find.text(expectedText), findsOneWidget);
   });
   testWidgets('高さのフォームが機能するかの確認', (WidgetTester tester) async {
     final book = dummyBook();
+    final expectedText = '前回の内容: ${book.height}';
     final changedText = 'second height';
 
     await tester.pumpWidget(
       MaterialApp(home: Show(book: book, fileUploader: MockFileUploader())),
     );
-    await changeFormText(tester, 'height', changedText);
-    expect(find.text('前回の内容: ${book.height}'), findsOneWidget);
+    await changeTextFormField(tester, 'height', changedText);
+    expect(find.text(expectedText), findsOneWidget);
   });
   testWidgets('横幅のフォームが機能するかの確認', (WidgetTester tester) async {
     final book = dummyBook();
+    final expectedText = '前回の内容: ${book.width}';
     final changedText = 'second width';
 
     await tester.pumpWidget(
       MaterialApp(home: Show(book: book, fileUploader: MockFileUploader())),
     );
-    await changeFormText(tester, 'width', changedText);
-    expect(find.text('前回の内容: ${book.width}'), findsOneWidget);
+    await changeTextFormField(tester, 'width', changedText);
+    expect(find.text(expectedText), findsOneWidget);
   });
   testWidgets('commentのフォームが存在するか確認', (WidgetTester tester) async {
     final book = dummyBook();
@@ -159,39 +165,39 @@ void main() {
   testWidgets('[成功時]表紙の画像のアップロード時、ファイル名が表示される(更新は含まない)', (
     WidgetTester tester,
   ) async {
-    final String expectFileName = (await mockPickFileSuccess()).fileName!;
+    final String expectedFileName = (await mockPickFileSuccess()).fileName!;
     final uploadButton = find.widgetWithText(ElevatedButton, 'アップロード').at(0);
 
     await uploadFile(tester, uploadButton, mockPickFileSuccess());
     await tester.pumpAndSettle();
-    expect(findTextWidgetWithText(expectFileName), findsOneWidget);
+    expect(findTextWidgetWithText(expectedFileName), findsOneWidget);
   });
   testWidgets('[成功時]背表紙の画像のアップロード時、ファイル名が表示される(更新は含まない)', (
     WidgetTester tester,
   ) async {
-    final String expectFileName = (await mockPickFileSuccess()).fileName!;
+    final String expectedFileName = (await mockPickFileSuccess()).fileName!;
     final uploadButton = find.widgetWithText(ElevatedButton, 'アップロード').at(1);
 
     await uploadFile(tester, uploadButton, mockPickFileSuccess());
-    expect(findTextWidgetWithText(expectFileName), findsOneWidget);
+    expect(findTextWidgetWithText(expectedFileName), findsOneWidget);
   });
   testWidgets('[失敗時]表紙の画像のアップロードの失敗時、失敗したメッセージが表示される', (
     WidgetTester tester,
   ) async {
-    final String expectText = 'アップロードに失敗しました';
+    final String expectedText = 'アップロードに失敗しました';
     final uploadButton = find.widgetWithText(ElevatedButton, 'アップロード').at(0);
     await uploadFile(tester, uploadButton, mockPickFileFailure());
 
-    expect(findTextWidgetWithText(expectText), findsOneWidget);
+    expect(findTextWidgetWithText(expectedText), findsOneWidget);
   });
   testWidgets('[失敗時]背表紙の画像のアップロードの失敗時、失敗したメッセージが表示される', (
     WidgetTester tester,
   ) async {
-    final String expectText = 'アップロードに失敗しました';
+    final String expectedText = 'アップロードに失敗しました';
     final uploadButton = find.widgetWithText(ElevatedButton, 'アップロード').at(1);
 
     await uploadFile(tester, uploadButton, mockPickFileFailure());
-    expect(findTextWidgetWithText(expectText), findsOneWidget);
+    expect(findTextWidgetWithText(expectedText), findsOneWidget);
   });
   testWidgets('データを更新できるか', (WidgetTester tester) async {
     final book = await getBookFirst();
@@ -206,11 +212,11 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(home: Show(book: book, fileUploader: mockFileUploader)),
     );
-    await changeFormText(tester, 'title', updatedTitle);
-    await changeFormText(tester, 'author', updatedAuthor);
-    await changeFormText(tester, 'page', updatedPages.toString());
-    await changeFormText(tester, 'height', updatedHeight.toString());
-    await changeFormText(tester, 'width', updatedWidth.toString());
+    await changeTextFormField(tester, 'title', updatedTitle);
+    await changeTextFormField(tester, 'author', updatedAuthor);
+    await changeTextFormField(tester, 'page', updatedPages.toString());
+    await changeTextFormField(tester, 'height', updatedHeight.toString());
+    await changeTextFormField(tester, 'width', updatedWidth.toString());
     await tester.tap(find.widgetWithText(ElevatedButton, '更新する')); // 更新ボタンをクリック
     await tester.pumpAndSettle();
     final updatedBook = await getBookFirst();
