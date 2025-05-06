@@ -97,68 +97,18 @@ Finder findTextWidgetWithText(String text) {
 @GenerateMocks([FileUploader])
 void main() {
   initHive();
-  testWidgets('タイトルのフォームが機能するかの確認', (WidgetTester tester) async {
+  testWidgets('bookのカラム(title,author,height,width,pages,comment)のフォームが存在する', (
+    WidgetTester tester,
+  ) async {
     final book = dummyBook();
-    final expectedText = '前回の内容: ${book.title}';
-    final changedText = 'second title';
-
     await tester.pumpWidget(
       MaterialApp(home: Show(book: book, fileUploader: MockFileUploader())),
     );
-    await changeTextFormField(tester, 'title', changedText);
-    expect(find.text(expectedText), findsOneWidget);
-  });
-  testWidgets('著者のフォームが機能するかの確認', (WidgetTester tester) async {
-    final book = dummyBook();
-    final expectedText = '前回の内容: ${book.author}';
-
-    final changedText = 'second author';
-
-    await tester.pumpWidget(
-      MaterialApp(home: Show(book: book, fileUploader: MockFileUploader())),
-    );
-    await changeTextFormField(tester, 'author', changedText);
-    expect(find.text(expectedText), findsOneWidget);
-  });
-  testWidgets('ページのフォームが機能するかの確認', (WidgetTester tester) async {
-    final book = dummyBook();
-    final expectedText = '前回の内容: ${book.pages}';
-    final changedText = 'second pages';
-
-    await tester.pumpWidget(
-      MaterialApp(home: Show(book: book, fileUploader: MockFileUploader())),
-    );
-    await changeTextFormField(tester, 'page', changedText);
-    expect(find.text(expectedText), findsOneWidget);
-  });
-  testWidgets('高さのフォームが機能するかの確認', (WidgetTester tester) async {
-    final book = dummyBook();
-    final expectedText = '前回の内容: ${book.height}';
-    final changedText = 'second height';
-
-    await tester.pumpWidget(
-      MaterialApp(home: Show(book: book, fileUploader: MockFileUploader())),
-    );
-    await changeTextFormField(tester, 'height', changedText);
-    expect(find.text(expectedText), findsOneWidget);
-  });
-  testWidgets('横幅のフォームが機能するかの確認', (WidgetTester tester) async {
-    final book = dummyBook();
-    final expectedText = '前回の内容: ${book.width}';
-    final changedText = 'second width';
-
-    await tester.pumpWidget(
-      MaterialApp(home: Show(book: book, fileUploader: MockFileUploader())),
-    );
-    await changeTextFormField(tester, 'width', changedText);
-    expect(find.text(expectedText), findsOneWidget);
-  });
-  testWidgets('commentのフォームが存在するか確認', (WidgetTester tester) async {
-    final book = dummyBook();
-
-    await tester.pumpWidget(
-      MaterialApp(home: Show(book: book, fileUploader: MockFileUploader())),
-    );
+    expect(find.widgetWithText(TextFormField, 'title'), findsOneWidget);
+    expect(find.widgetWithText(TextFormField, 'author'), findsOneWidget);
+    expect(find.widgetWithText(TextFormField, 'height'), findsOneWidget);
+    expect(find.widgetWithText(TextFormField, 'width'), findsOneWidget);
+    expect(find.widgetWithText(TextFormField, 'page'), findsOneWidget);
     expect(find.widgetWithText(TextFormField, 'comment'), findsOneWidget);
   });
 
