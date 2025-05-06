@@ -9,7 +9,7 @@ class FileUploadWidget extends StatefulWidget {
 }
 
 class _FileUploadWidgetState extends State<FileUploadWidget> {
-  UploadedFileStatus bookCoverImageStatus = UploadedFileStatus();
+  FileUploader result = FileUploader();
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -17,13 +17,13 @@ class _FileUploadWidgetState extends State<FileUploadWidget> {
         Text('${widget.label}の画像'),
         ElevatedButton(
           onPressed: () async {
-            final IFileUploader fileUploader = UploadedFileStatus();
-            bookCoverImageStatus = await fileUploader.pickFile();
+            final FileUploader fileUploader = FileUploader();
+            result = await fileUploader.pickFile();
             setState(() {});
           },
           child: const Text('アップロード'),
         ),
-        Text(bookCoverImageStatus.fileSelectionDisplayText()),
+        Text(result.fileSelectionDisplayText()),
       ],
     );
   }
