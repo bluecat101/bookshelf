@@ -3,7 +3,12 @@ import 'package:flutter/material.dart';
 
 class FileUploadWidget extends StatefulWidget {
   final String label;
-  const FileUploadWidget({super.key, required this.label});
+  final FileUploader fileUploader;
+  const FileUploadWidget({
+    super.key,
+    required this.label,
+    required this.fileUploader,
+  });
   @override
   State<FileUploadWidget> createState() => _FileUploadWidgetState();
 }
@@ -17,8 +22,7 @@ class _FileUploadWidgetState extends State<FileUploadWidget> {
         Text('${widget.label}の画像'),
         ElevatedButton(
           onPressed: () async {
-            final FileUploader fileUploader = FileUploader();
-            result = await fileUploader.pickFile();
+            result = await widget.fileUploader.pickFile();
             setState(() {});
           },
           child: const Text('アップロード'),

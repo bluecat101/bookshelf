@@ -1,3 +1,4 @@
+import 'package:bookshelf/book/logic/file_upload.dart';
 import 'package:bookshelf/book/show.dart';
 import 'package:bookshelf/book/widgets/book_helpers.dart';
 import 'package:bookshelf/book/widgets/book_item.dart';
@@ -52,7 +53,7 @@ class _IndexPageState extends State<Index> {
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) {
-          return Show(book: book);
+          return Show(book: book, fileUploader: FileUploader());
         },
       ),
     );

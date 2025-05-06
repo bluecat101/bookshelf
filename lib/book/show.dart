@@ -1,3 +1,4 @@
+import 'package:bookshelf/book/logic/file_upload.dart';
 import 'package:bookshelf/book/model/book.dart';
 import 'package:bookshelf/book/widgets/file_upload.dart';
 import 'package:flutter/material.dart';
@@ -5,8 +6,8 @@ import 'package:hive/hive.dart';
 
 class Show extends StatefulWidget {
   final Book book;
-
-  const Show({super.key, required this.book});
+  final FileUploader fileUploader;
+  const Show({super.key, required this.book, required this.fileUploader});
   @override
   State<Show> createState() => _ShowPageState();
 }
@@ -164,8 +165,8 @@ class _ShowPageState extends State<Show> {
                   ),
                 ),
               ),
-              FileUploadWidget(label: '表紙'),
-              FileUploadWidget(label: '背表紙'),
+              FileUploadWidget(label: '表紙', fileUploader: widget.fileUploader),
+              FileUploadWidget(label: '背表紙', fileUploader: widget.fileUploader),
               Row(
                 children: [
                   ElevatedButton(

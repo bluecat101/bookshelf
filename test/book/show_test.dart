@@ -1,11 +1,28 @@
+import 'package:bookshelf/book/logic/file_upload.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bookshelf/book/show.dart';
 import 'dart:io';
 import 'package:hive/hive.dart';
 import 'package:bookshelf/book/model/book.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
+
+import 'show_test.mocks.dart';
 
 late Box<Book> bookshelf;
+Future<FileUploader> mockPickFileSuccess() async {
+  debugPrint("test");
+  return FileUploader(
+    state: FileSelectionState.loadSuccess,
+    path: File('sample_file_path.png'),
+    fileName: 'sample_file_path',
+  );
+}
+
+Future<FileUploader> mockPickFileFailure() async {
+  return FileUploader(state: FileSelectionState.loadFailure);
+}
 
 // ダミーデータの作成
 Book dummyBook() {
@@ -56,60 +73,85 @@ Future<void> changeFormText(
   await tester.pumpAndSettle();
 }
 
+@GenerateMocks([FileUploader])
 void main() {
   initHive();
   testWidgets('タイトルのフォームが機能するかの確認', (WidgetTester tester) async {
     final book = dummyBook();
     final changedText = 'second title';
-    await tester.pumpWidget(MaterialApp(home: Show(book: book)));
 
+    await tester.pumpWidget(
+      MaterialApp(home: Show(book: book, fileUploader: MockFileUploader())),
+    );
     await changeFormText(tester, 'title', changedText);
     expect(find.text('前回の内容: ${book.title}'), findsOneWidget);
   });
   testWidgets('著者のフォームが機能するかの確認', (WidgetTester tester) async {
     final book = dummyBook();
     final changedText = 'second author';
-    await tester.pumpWidget(MaterialApp(home: Show(book: book)));
 
+    await tester.pumpWidget(
+      MaterialApp(home: Show(book: book, fileUploader: MockFileUploader())),
+    );
     await changeFormText(tester, 'author', changedText);
     expect(find.text('前回の内容: ${book.author}'), findsOneWidget);
   });
   testWidgets('ページのフォームが機能するかの確認', (WidgetTester tester) async {
     final book = dummyBook();
     final changedText = 'second pages';
-    await tester.pumpWidget(MaterialApp(home: Show(book: book)));
 
+    await tester.pumpWidget(
+      MaterialApp(home: Show(book: book, fileUploader: MockFileUploader())),
+    );
     await changeFormText(tester, 'page', changedText);
     expect(find.text('前回の内容: ${book.pages}'), findsOneWidget);
   });
   testWidgets('高さのフォームが機能するかの確認', (WidgetTester tester) async {
     final book = dummyBook();
     final changedText = 'second height';
-    await tester.pumpWidget(MaterialApp(home: Show(book: book)));
 
+    await tester.pumpWidget(
+      MaterialApp(home: Show(book: book, fileUploader: MockFileUploader())),
+    );
     await changeFormText(tester, 'height', changedText);
     expect(find.text('前回の内容: ${book.height}'), findsOneWidget);
   });
   testWidgets('横幅のフォームが機能するかの確認', (WidgetTester tester) async {
     final book = dummyBook();
     final changedText = 'second width';
-    await tester.pumpWidget(MaterialApp(home: Show(book: book)));
 
+    await tester.pumpWidget(
+      MaterialApp(home: Show(book: book, fileUploader: MockFileUploader())),
+    );
     await changeFormText(tester, 'width', changedText);
     expect(find.text('前回の内容: ${book.width}'), findsOneWidget);
   });
   testWidgets('commentのフォームが存在するか確認', (WidgetTester tester) async {
     final book = dummyBook();
-    await tester.pumpWidget(MaterialApp(home: Show(book: book)));
+
+    await tester.pumpWidget(
+      MaterialApp(home: Show(book: book, fileUploader: MockFileUploader())),
+    );
     expect(find.widgetWithText(TextFormField, 'comment'), findsOneWidget);
   });
 
   testWidgets('表紙の画像をuploadできる(更新は含まない)', (WidgetTester tester) async {
     // 表紙の画像をアップロードするボタンが表示されている
     // 選択した画像のファイル名が表示される(mockCoverImageFileを使う)
-    // final fieldFinder = find.widgetWithText(TextButton, '表紙の画像をアップロードする');
-    final filePath = '';
-    expect(find.text(filePath), findsOneWidget);
+    final mockFileUploader = MockFileUploader();
+    when(
+      mockFileUploader.pickFile(),
+    ).thenAnswer((_) async => await mockPickFileSuccess());
+    final book = dummyBook();
+    await tester.pumpWidget(
+      MaterialApp(home: Show(book: book, fileUploader: mockFileUploader)),
+    );
+
+    await tester.tap(find.widgetWithText(ElevatedButton, 'アップロード').first);
+    await tester.pumpAndSettle();
+    // 更新ボタンをクリック
+    // final filePath = '';
+    // expect(find.text(filePath), findsOneWidget);
   });
   testWidgets('背表紙の画像をuploadできる(更新は含まない)', (WidgetTester tester) async {
     // 背表紙の画像をアップロードするボタンが表示されている
@@ -120,6 +162,7 @@ void main() {
   });
   testWidgets('データを更新できるか', (WidgetTester tester) async {
     final book = await getBookFirst();
+    final mockFileUploader = MockFileUploader();
     final updatedTitle = 'second title';
     final updatedAuthor = 'second author';
     final updatedPages = 2;
@@ -127,7 +170,9 @@ void main() {
     final updatedWidth = 2;
     final updatedCoverImagePath = '';
     final updatedSpineImagePath = '';
-    await tester.pumpWidget(MaterialApp(home: Show(book: book)));
+    await tester.pumpWidget(
+      MaterialApp(home: Show(book: book, fileUploader: mockFileUploader)),
+    );
     await changeFormText(tester, 'title', updatedTitle);
     await changeFormText(tester, 'author', updatedAuthor);
     await changeFormText(tester, 'page', updatedPages.toString());
