@@ -12,7 +12,6 @@ import 'show_test.mocks.dart';
 
 late Box<Book> bookshelf;
 Future<FileUploader> mockPickFileSuccess() async {
-  debugPrint("test");
   return FileUploader(
     state: FileSelectionState.loadSuccess,
     path: File('sample_file_path.png'),
@@ -71,6 +70,28 @@ Future<void> changeFormText(
   final fieldFinder = find.widgetWithText(TextFormField, targetFormLabel);
   await tester.enterText(fieldFinder, changedText);
   await tester.pumpAndSettle();
+}
+
+Future<void> uploadFile(
+  WidgetTester tester,
+  FinderBase<Element> uploadButton,
+  Future<FileUploader> mockPickFile,
+) async {
+  final book = dummyBook();
+  final mockFileUploader = MockFileUploader();
+  when(mockFileUploader.pickFile()).thenAnswer((_) async => mockPickFile);
+  await tester.pumpWidget(
+    MaterialApp(home: Show(book: book, fileUploader: mockFileUploader)),
+  );
+  await tester.tap(uploadButton);
+  await tester.pumpAndSettle();
+}
+
+Finder findTextWidgetWithText(String text) {
+  // find.widgetWithText(Text, text)改行や空白はないが左のものでうまく行かないため下を起用
+  return find.byWidgetPredicate(
+    (widget) => widget is Text && widget.data == text,
+  );
 }
 
 @GenerateMocks([FileUploader])
@@ -135,30 +156,42 @@ void main() {
     expect(find.widgetWithText(TextFormField, 'comment'), findsOneWidget);
   });
 
-  testWidgets('表紙の画像をuploadできる(更新は含まない)', (WidgetTester tester) async {
-    // 表紙の画像をアップロードするボタンが表示されている
-    // 選択した画像のファイル名が表示される(mockCoverImageFileを使う)
-    final mockFileUploader = MockFileUploader();
-    when(
-      mockFileUploader.pickFile(),
-    ).thenAnswer((_) async => await mockPickFileSuccess());
-    final book = dummyBook();
-    await tester.pumpWidget(
-      MaterialApp(home: Show(book: book, fileUploader: mockFileUploader)),
-    );
+  testWidgets('[成功時]表紙の画像のアップロード時、ファイル名が表示される(更新は含まない)', (
+    WidgetTester tester,
+  ) async {
+    final String expectFileName = (await mockPickFileSuccess()).fileName!;
+    final uploadButton = find.widgetWithText(ElevatedButton, 'アップロード').at(0);
 
-    await tester.tap(find.widgetWithText(ElevatedButton, 'アップロード').first);
+    await uploadFile(tester, uploadButton, mockPickFileSuccess());
     await tester.pumpAndSettle();
-    // 更新ボタンをクリック
-    // final filePath = '';
-    // expect(find.text(filePath), findsOneWidget);
+    expect(findTextWidgetWithText(expectFileName), findsOneWidget);
   });
-  testWidgets('背表紙の画像をuploadできる(更新は含まない)', (WidgetTester tester) async {
-    // 背表紙の画像をアップロードするボタンが表示されている
-    // 選択した画像のファイル名が表示される(mockSpineImageFileを使う)
-    // final fieldFinder = find.widgetWithText(TextButton, '背表紙の画像をアップロードする');
-    final filePath = '';
-    expect(find.text(filePath), findsOneWidget);
+  testWidgets('[成功時]背表紙の画像のアップロード時、ファイル名が表示される(更新は含まない)', (
+    WidgetTester tester,
+  ) async {
+    final String expectFileName = (await mockPickFileSuccess()).fileName!;
+    final uploadButton = find.widgetWithText(ElevatedButton, 'アップロード').at(1);
+
+    await uploadFile(tester, uploadButton, mockPickFileSuccess());
+    expect(findTextWidgetWithText(expectFileName), findsOneWidget);
+  });
+  testWidgets('[失敗時]表紙の画像のアップロードの失敗時、失敗したメッセージが表示される', (
+    WidgetTester tester,
+  ) async {
+    final String expectText = 'アップロードに失敗しました';
+    final uploadButton = find.widgetWithText(ElevatedButton, 'アップロード').at(0);
+    await uploadFile(tester, uploadButton, mockPickFileFailure());
+
+    expect(findTextWidgetWithText(expectText), findsOneWidget);
+  });
+  testWidgets('[失敗時]背表紙の画像のアップロードの失敗時、失敗したメッセージが表示される', (
+    WidgetTester tester,
+  ) async {
+    final String expectText = 'アップロードに失敗しました';
+    final uploadButton = find.widgetWithText(ElevatedButton, 'アップロード').at(1);
+
+    await uploadFile(tester, uploadButton, mockPickFileFailure());
+    expect(findTextWidgetWithText(expectText), findsOneWidget);
   });
   testWidgets('データを更新できるか', (WidgetTester tester) async {
     final book = await getBookFirst();
