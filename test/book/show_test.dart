@@ -6,19 +6,22 @@ import 'package:hive/hive.dart';
 import 'package:bookshelf/book/model/book.dart';
 
 // ダミーデータの作成
-Future<void> createDummyData() async {
-  final bookshelf = await Hive.openBox<Book>('book');
-  final book = Book(
+Book mockBook() {
+  return Book(
     title: 'sample title',
     author: 'sample author',
     pages: 1,
     height: 1,
     width: 1,
   );
-  bookshelf.add(book);
 }
 
-Future<Book> getBook() async {
+Future<void> createBookForDB() async {
+  final bookshelf = await Hive.openBox<Book>('book');
+  bookshelf.add(mockBook());
+}
+
+Future<Book> getBookFirst() async {
   final bookshelf = await Hive.openBox<Book>('book');
   return bookshelf.values.first;
 }
@@ -27,13 +30,11 @@ Future<Book> getBook() async {
 initHive() {
   final hiveDirPath = 'test/book/model/hive_test';
   setUpAll(() async {
-    // テスト用の一時ディレクトリを用意
     Hive.init(hiveDirPath);
     Hive.registerAdapter(BookAdapter());
     // Boxを開く
     await Hive.openBox<Book>('book');
-    // データを作成する
-    await createDummyData();
+    createBookForDB();
   });
 
   // 終了後にHiveを閉じる
@@ -46,55 +47,59 @@ initHive() {
 }
 
 void main() {
-  initHive(); // Hiveの初期化
+  initHive();
   testWidgets('タイトルのフォームが機能するかの確認', (WidgetTester tester) async {
-    final book = await getBook();
+    final book = mockBook();
     await tester.pumpWidget(MaterialApp(home: Show(book: book)));
     final titleField = find.widgetWithText(TextFormField, 'title');
     await tester.enterText(titleField, 'second title');
+    await tester.pumpAndSettle();
     expect(find.text('second title'), findsOneWidget);
-    expect(find.text('前回の入力: sample title'), findsOneWidget);
+    expect(find.text('前回の内容: ${book.title}'), findsOneWidget);
   });
   testWidgets('著者のフォームが機能するかの確認', (WidgetTester tester) async {
-    final book = await getBook();
+    final book = mockBook();
     await tester.pumpWidget(MaterialApp(home: Show(book: book)));
     final authorField = find.widgetWithText(TextFormField, 'author');
     await tester.enterText(authorField, 'second author');
+    await tester.pumpAndSettle();
     expect(find.text('second author'), findsOneWidget);
-    expect(find.text('前回の入力: sample author'), findsOneWidget);
+    expect(find.text('前回の内容: ${book.author}'), findsOneWidget);
   });
   testWidgets('ページのフォームが機能するかの確認', (WidgetTester tester) async {
-    final book = await getBook();
+    final book = mockBook();
     await tester.pumpWidget(MaterialApp(home: Show(book: book)));
     final pageField = find.widgetWithText(TextFormField, 'page');
     await tester.enterText(pageField, '2');
+    await tester.pumpAndSettle();
     expect(find.text('2'), findsOneWidget);
-    expect(find.text('前回の入力: 1'), findsOneWidget);
+    expect(find.text('前回の内容: ${book.pages}'), findsOneWidget);
   });
   testWidgets('高さのフォームが機能するかの確認', (WidgetTester tester) async {
-    final book = await getBook();
+    final book = mockBook();
     await tester.pumpWidget(MaterialApp(home: Show(book: book)));
     final heightField = find.widgetWithText(TextFormField, 'height');
     await tester.enterText(heightField, '2');
+    await tester.pumpAndSettle();
     expect(find.text('2'), findsOneWidget);
-    expect(find.text('前回の入力: 1'), findsOneWidget);
+    expect(find.text('前回の内容: ${book.height}'), findsOneWidget);
   });
-  testWidgets('厚さのフォームが機能するかの確認', (WidgetTester tester) async {
-    final book = await getBook();
+  testWidgets('横幅のフォームが機能するかの確認', (WidgetTester tester) async {
+    final book = mockBook();
     await tester.pumpWidget(MaterialApp(home: Show(book: book)));
     final widthField = find.widgetWithText(TextFormField, 'width');
     await tester.enterText(widthField, '2');
+    await tester.pumpAndSettle();
     expect(find.text('2'), findsOneWidget);
-    expect(find.text('前回の入力: 1'), findsOneWidget);
+    expect(find.text('前回の内容: ${book.width}'), findsOneWidget);
   });
-  // これより下は、単体でテストする場合にはinitHive()を実行してください
   testWidgets('データを更新できるか', (WidgetTester tester) async {
     final title = 'second title';
     final author = 'second author';
-    final page = '2';
-    final height = '2';
-    final width = '2';
-    final book = await getBook();
+    final pages = 2;
+    final height = 2;
+    final width = 2;
+    final book = await getBookFirst();
     await tester.pumpWidget(MaterialApp(home: Show(book: book)));
     final titleField = find.widgetWithText(TextFormField, 'title');
     final authorField = find.widgetWithText(TextFormField, 'author');
@@ -103,16 +108,16 @@ void main() {
     final widthField = find.widgetWithText(TextFormField, 'width');
     await tester.enterText(titleField, title);
     await tester.enterText(authorField, author);
-    await tester.enterText(pageField, page);
-    await tester.enterText(heightField, height);
-    await tester.enterText(widthField, width);
-    await tester.tap(find.byType(ElevatedButton)); // 更新ボタンをクリック
+    await tester.enterText(pageField, pages.toString());
+    await tester.enterText(heightField, height.toString());
+    await tester.enterText(widthField, width.toString());
+    await tester.tap(find.widgetWithText(ElevatedButton, '更新する')); // 更新ボタンをクリック
     await tester.pumpAndSettle();
     final bookshelf = await Hive.openBox<Book>('book');
     final books = bookshelf.values.toList();
     expect(books[0].title, title);
     expect(books[0].author, author);
-    expect(books[0].pages, page);
+    expect(books[0].pages, pages);
     expect(books[0].height, height);
     expect(books[0].width, width);
   });
