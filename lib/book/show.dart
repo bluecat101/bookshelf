@@ -152,18 +152,16 @@ class _ShowPageState extends State<Show> {
                 'width',
                 book.width.toString(),
               ),
-              generateTextFormField(
-                _widthController,
-                'width',
-                book.width.toString(),
-              ),
-              TextField(
+              TextFormField(
                 // commentのフォーム
                 keyboardType: TextInputType.multiline,
                 maxLines: null,
+
                 decoration: InputDecoration(
-                  isDense: true,
-                  contentPadding: const EdgeInsets.all(12),
+                  labelText: 'comment',
+                  helperStyle: TextStyle(
+                    color: const Color.fromARGB(255, 25, 104, 233),
+                  ),
                 ),
               ),
               FileUploadWidget(label: '表紙'),
