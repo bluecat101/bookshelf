@@ -8,7 +8,7 @@ import 'package:bookshelf/book/model/book.dart';
 late Box<Book> bookshelf;
 
 // ダミーデータの作成
-Book mockBook() {
+Book dummyBook() {
   return Book(
     title: 'sample title',
     author: 'sample author',
@@ -19,7 +19,7 @@ Book mockBook() {
 }
 
 Future<void> createBookForDB() async {
-  bookshelf.add(mockBook());
+  bookshelf.add(dummyBook());
 }
 
 Future<Book> getBookFirst() async {
@@ -59,7 +59,7 @@ Future<void> changeFormText(
 void main() {
   initHive();
   testWidgets('タイトルのフォームが機能するかの確認', (WidgetTester tester) async {
-    final book = mockBook();
+    final book = dummyBook();
     final changedText = 'second title';
     await tester.pumpWidget(MaterialApp(home: Show(book: book)));
 
@@ -67,7 +67,7 @@ void main() {
     expect(find.text('前回の内容: ${book.title}'), findsOneWidget);
   });
   testWidgets('著者のフォームが機能するかの確認', (WidgetTester tester) async {
-    final book = mockBook();
+    final book = dummyBook();
     final changedText = 'second author';
     await tester.pumpWidget(MaterialApp(home: Show(book: book)));
 
@@ -75,7 +75,7 @@ void main() {
     expect(find.text('前回の内容: ${book.author}'), findsOneWidget);
   });
   testWidgets('ページのフォームが機能するかの確認', (WidgetTester tester) async {
-    final book = mockBook();
+    final book = dummyBook();
     final changedText = 'second pages';
     await tester.pumpWidget(MaterialApp(home: Show(book: book)));
 
@@ -83,7 +83,7 @@ void main() {
     expect(find.text('前回の内容: ${book.pages}'), findsOneWidget);
   });
   testWidgets('高さのフォームが機能するかの確認', (WidgetTester tester) async {
-    final book = mockBook();
+    final book = dummyBook();
     final changedText = 'second height';
     await tester.pumpWidget(MaterialApp(home: Show(book: book)));
 
@@ -91,7 +91,7 @@ void main() {
     expect(find.text('前回の内容: ${book.height}'), findsOneWidget);
   });
   testWidgets('横幅のフォームが機能するかの確認', (WidgetTester tester) async {
-    final book = mockBook();
+    final book = dummyBook();
     final changedText = 'second width';
     await tester.pumpWidget(MaterialApp(home: Show(book: book)));
 
@@ -99,7 +99,7 @@ void main() {
     expect(find.text('前回の内容: ${book.width}'), findsOneWidget);
   });
   testWidgets('commentのフォームが存在するか確認', (WidgetTester tester) async {
-    final book = mockBook();
+    final book = dummyBook();
     await tester.pumpWidget(MaterialApp(home: Show(book: book)));
     expect(find.widgetWithText(TextFormField, 'comment'), findsOneWidget);
   });
