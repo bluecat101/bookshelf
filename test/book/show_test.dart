@@ -31,6 +31,7 @@ Book dummyBook() {
     pages: 1,
     height: 1,
     width: 1,
+    comment: 'sample comment',
   );
 }
 
@@ -157,8 +158,10 @@ void main() {
     final updatedPages = 2;
     final updatedHeight = 2;
     final updatedWidth = 2;
+    final updatedComment = 'second comment';
     final updatedCoverImagePath = '';
     final updatedSpineImagePath = '';
+
     await tester.pumpWidget(
       MaterialApp(home: Show(book: book, fileUploader: mockFileUploader)),
     );
@@ -167,7 +170,17 @@ void main() {
     await changeTextFormField(tester, 'pages', updatedPages.toString());
     await changeTextFormField(tester, 'height', updatedHeight.toString());
     await changeTextFormField(tester, 'width', updatedWidth.toString());
-    await tester.tap(find.widgetWithText(ElevatedButton, '更新する')); // 更新ボタンをクリック
+    await changeTextFormField(tester, 'comment', updatedComment.toString());
+    // スクロールしてから更新ボタンをクリック
+    final updateButton = find.widgetWithText(ElevatedButton, '更新する');
+    expect(updateButton, findsOneWidget);
+
+    await tester.scrollUntilVisible(
+      updateButton,
+      100.0,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(updateButton);
     await tester.pumpAndSettle();
     final updatedBook = await getBookFirst();
     expect(updatedBook.title, updatedTitle);
@@ -175,6 +188,7 @@ void main() {
     expect(updatedBook.pages, updatedPages);
     expect(updatedBook.height, updatedHeight);
     expect(updatedBook.width, updatedWidth);
+    expect(updatedBook.comment, updatedComment);
     expect(updatedBook.coverImagePath, updatedCoverImagePath);
     expect(updatedBook.spineImagePath, updatedSpineImagePath);
   });
