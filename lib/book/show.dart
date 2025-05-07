@@ -140,7 +140,7 @@ class _ShowPageState extends State<Show> {
               generateTextFormField(_authorController, 'author', book.author),
               generateTextFormField(
                 _pageController,
-                'page',
+                'pages',
                 book.pages.toString(),
               ),
               generateTextFormField(

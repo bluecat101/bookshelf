@@ -108,7 +108,7 @@ void main() {
     expect(find.widgetWithText(TextFormField, 'author'), findsOneWidget);
     expect(find.widgetWithText(TextFormField, 'height'), findsOneWidget);
     expect(find.widgetWithText(TextFormField, 'width'), findsOneWidget);
-    expect(find.widgetWithText(TextFormField, 'page'), findsOneWidget);
+    expect(find.widgetWithText(TextFormField, 'pages'), findsOneWidget);
     expect(find.widgetWithText(TextFormField, 'comment'), findsOneWidget);
   });
 
@@ -164,7 +164,7 @@ void main() {
     );
     await changeTextFormField(tester, 'title', updatedTitle);
     await changeTextFormField(tester, 'author', updatedAuthor);
-    await changeTextFormField(tester, 'page', updatedPages.toString());
+    await changeTextFormField(tester, 'pages', updatedPages.toString());
     await changeTextFormField(tester, 'height', updatedHeight.toString());
     await changeTextFormField(tester, 'width', updatedWidth.toString());
     await tester.tap(find.widgetWithText(ElevatedButton, '更新する')); // 更新ボタンをクリック
