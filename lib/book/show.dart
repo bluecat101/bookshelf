@@ -19,6 +19,7 @@ class _ShowPageState extends State<Show> {
   late TextEditingController _pageController;
   late TextEditingController _heightController;
   late TextEditingController _widthController;
+  late TextEditingController _commentController;
 
   @override
   void initState() {
@@ -33,6 +34,7 @@ class _ShowPageState extends State<Show> {
     _widthController = TextEditingController(
       text: widget.book.width.toString(),
     );
+    _commentController = TextEditingController(text: widget.book.comment);
   }
 
   @override
@@ -43,6 +45,7 @@ class _ShowPageState extends State<Show> {
     _pageController.dispose();
     _heightController.dispose();
     _widthController.dispose();
+    _commentController.dispose();
   }
 
   Future<(Box<Book>, int)> fetchBookIndex(searchedBook) async {
@@ -76,6 +79,7 @@ class _ShowPageState extends State<Show> {
       book.pages = int.parse(_pageController.text);
       book.height = int.parse(_heightController.text);
       book.width = int.parse(_widthController.text);
+      book.comment = _commentController.text;
       await updateBook(book);
       return true;
     }
@@ -127,8 +131,6 @@ class _ShowPageState extends State<Show> {
   @override
   Widget build(BuildContext context) {
     final book = widget.book;
-    // UploadedFileStatus bookCoverImageStatus = UploadedFileStatus();
-    // UploadedFileStatus bookSpineImageStatus = UploadedFileStatus();
     return Scaffold(
       appBar: AppBar(title: Text('show')),
       body: SingleChildScrollView(
@@ -154,10 +156,9 @@ class _ShowPageState extends State<Show> {
                 book.width.toString(),
               ),
               TextFormField(
-                // commentのフォーム
+                controller: _commentController,
                 keyboardType: TextInputType.multiline,
                 maxLines: null,
-
                 decoration: InputDecoration(
                   labelText: 'comment',
                   helperStyle: TextStyle(
