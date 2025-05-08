@@ -58,15 +58,6 @@ class _ShowPageState extends State<Show> {
     );
   }
 
-  Future<bool> updateBook(Book updatedBook) async {
-    final (box, index) = await fetchBookIndex(updatedBook);
-    if (index != -1) {
-      await box.putAt(index, updatedBook);
-      return true;
-    }
-    return false;
-  }
-
   Future<bool> _deleteBook(Book deletedBook) async {
     final (box, index) = await fetchBookIndex(deletedBook);
     if (index != -1) {
@@ -76,18 +67,8 @@ class _ShowPageState extends State<Show> {
     return false;
   }
 
-  Future<bool> _onSubmit(Book book) async {
+  Future<bool> updateBook(Book book) async {
     if (_formKey.currentState!.validate()) {
-      // final updatedBook = Book(
-      //   title: _titleController.text,
-      //   author: _authorController.text,
-      //   pages: int.parse(_pageController.text),
-      //   height: int.parse(_heightController.text),
-      //   width: int.parse(_widthController.text),
-      //   comment: _commentController.text,
-      //   coverImagePath: _coverImageFile.uploadFilePath,
-      //   spineImagePath: _spineImageFile.uploadFilePath,
-      // );
       book.title = _titleController.text;
       book.author = _authorController.text;
       book.pages = int.parse(_pageController.text);
@@ -96,7 +77,7 @@ class _ShowPageState extends State<Show> {
       book.comment = _commentController.text;
       book.coverImagePath = _coverImageFile.uploadFilePath;
       book.spineImagePath = _spineImageFile.uploadFilePath;
-      return await updateBook(book);
+      return true;
     }
     return false;
   }
@@ -217,7 +198,7 @@ class _ShowPageState extends State<Show> {
                   ElevatedButton(
                     child: Text('更新する'),
                     onPressed: () async {
-                      if (await _onSubmit(book)) {
+                      if (await updateBook(book)) {
                         if (!mounted) return;
                         Navigator.pop(context);
                       }
