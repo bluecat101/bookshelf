@@ -5,7 +5,7 @@ import 'package:bookshelf/book/show.dart';
 import 'package:bookshelf/book/model/book.dart';
 
 // ダミーデータの作成
-Future<List<Book>> mockBooks() {
+Future<List<Book>> dummyBooks() {
   final books = [
     Book(
       title: 'sample title1',
@@ -29,7 +29,7 @@ Future<List<Book>> mockBooks() {
 }
 
 Future<void> displayDialog(WidgetTester tester) async {
-  await tester.pumpWidget(MaterialApp(home: Index(booksFuture: mockBooks())));
+  await tester.pumpWidget(MaterialApp(home: Index(booksFuture: dummyBooks())));
   await tester.pumpAndSettle(); // タップする前に同期状態にする
   await tester.tap(find.byType(InkWell).at(0)); // 先頭の要素をタップする
   await tester.pumpAndSettle();
@@ -37,9 +37,11 @@ Future<void> displayDialog(WidgetTester tester) async {
 
 void main() {
   testWidgets('表示されている個数が合っている', (WidgetTester tester) async {
-    await tester.pumpWidget(MaterialApp(home: Index(booksFuture: mockBooks())));
+    await tester.pumpWidget(
+      MaterialApp(home: Index(booksFuture: dummyBooks())),
+    );
     await tester.pumpAndSettle();
-    final books = await mockBooks();
+    final books = await dummyBooks();
     expect(find.byType(InkWell), findsNWidgets(books.length));
   });
 
