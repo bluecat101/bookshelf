@@ -20,6 +20,8 @@ class _ShowPageState extends State<Show> {
   late TextEditingController _heightController;
   late TextEditingController _widthController;
   late TextEditingController _commentController;
+  FileUploader _coverImageFile = FileUploader();
+  FileUploader _spineImageFile = FileUploader();
 
   @override
   void initState() {
@@ -48,7 +50,7 @@ class _ShowPageState extends State<Show> {
     _commentController.dispose();
   }
 
-  Future<(Box<Book>, int)> fetchBookIndex(searchedBook) async {
+  Future<(Box<Book>, int)> fetchBookIndex(Book searchedBook) async {
     final box = await Hive.openBox<Book>('book');
     return (
       box,
@@ -56,11 +58,13 @@ class _ShowPageState extends State<Show> {
     );
   }
 
-  Future<void> updateBook(Book updatedBook) async {
+  Future<bool> updateBook(Book updatedBook) async {
     final (box, index) = await fetchBookIndex(updatedBook);
     if (index != -1) {
-      await box.put(index, updatedBook);
+      await box.putAt(index, updatedBook);
+      return true;
     }
+    return false;
   }
 
   Future<bool> _deleteBook(Book deletedBook) async {
@@ -74,14 +78,25 @@ class _ShowPageState extends State<Show> {
 
   Future<bool> _onSubmit(Book book) async {
     if (_formKey.currentState!.validate()) {
+      // final updatedBook = Book(
+      //   title: _titleController.text,
+      //   author: _authorController.text,
+      //   pages: int.parse(_pageController.text),
+      //   height: int.parse(_heightController.text),
+      //   width: int.parse(_widthController.text),
+      //   comment: _commentController.text,
+      //   coverImagePath: _coverImageFile.uploadFilePath,
+      //   spineImagePath: _spineImageFile.uploadFilePath,
+      // );
       book.title = _titleController.text;
       book.author = _authorController.text;
       book.pages = int.parse(_pageController.text);
       book.height = int.parse(_heightController.text);
       book.width = int.parse(_widthController.text);
       book.comment = _commentController.text;
-      await updateBook(book);
-      return true;
+      book.coverImagePath = _coverImageFile.uploadFilePath;
+      book.spineImagePath = _spineImageFile.uploadFilePath;
+      return await updateBook(book);
     }
     return false;
   }
@@ -166,8 +181,24 @@ class _ShowPageState extends State<Show> {
                   ),
                 ),
               ),
-              FileUploadWidget(label: '表紙', fileUploader: widget.fileUploader),
-              FileUploadWidget(label: '背表紙', fileUploader: widget.fileUploader),
+              FileUploadWidget(
+                label: '表紙',
+                fileUploader: widget.fileUploader,
+                onFileInfo: (fileUploaderResult) {
+                  setState(() {
+                    _coverImageFile = fileUploaderResult;
+                  });
+                },
+              ),
+              FileUploadWidget(
+                label: '背表紙',
+                fileUploader: widget.fileUploader,
+                onFileInfo: (fileUploaderResult) {
+                  setState(() {
+                    _spineImageFile = fileUploaderResult;
+                  });
+                },
+              ),
               Row(
                 children: [
                   ElevatedButton(

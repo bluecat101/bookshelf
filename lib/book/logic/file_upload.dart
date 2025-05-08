@@ -17,6 +17,11 @@ class FileUploader {
     this.path,
     this.fileName,
   });
+
+  String? get uploadFilePath {
+    return (state == FileSelectionState.loadSuccess) ? path?.path : null;
+  }
+
   Future<FileUploader> pickFile() async {
     final filePickerResult = await FilePicker.platform.pickFiles(
       type: FileType.custom,
