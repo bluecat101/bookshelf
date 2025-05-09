@@ -1,5 +1,13 @@
+import 'package:bookshelf/helper/url.dart';
+import 'package:bookshelf/main.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bookshelf/apis/national_diet_library_api.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
+
+import 'national_diet_library_api_test.mocks.dart';
+
+late MockUrlHelperImpl mockUrlHelperImpl;
 
 NdlBook getSampleBook() {
   return NdlBook(
@@ -10,11 +18,29 @@ NdlBook getSampleBook() {
   );
 }
 
+Future<void> readyUrlHelperMock() async {
+  when(mockUrlHelperImpl.existUrl(any)).thenAnswer((_) async => true);
+}
+
+void initDI() {
+  setUpAll(() async {
+    mockUrlHelperImpl = MockUrlHelperImpl();
+    getIt.registerLazySingleton<UrlHelperImpl>(() => mockUrlHelperImpl);
+  });
+
+  tearDownAll(() async {
+    getIt.reset();
+  });
+}
+
+@GenerateMocks([UrlHelperImpl])
 void main() {
+  initDI();
   group('[正常系]fetchBookInfoThroughNationalDietLibraryのテスト', () {
     test('apiを取得後NdlBookの型である', () async {
       final testBookTitle = '達人プログラマ';
       final bookFetcher = BookFetcher();
+      readyUrlHelperMock();
       final books = await bookFetcher.fetchBookInfoThroughNationalDietLibrary(
         testBookTitle,
       );
