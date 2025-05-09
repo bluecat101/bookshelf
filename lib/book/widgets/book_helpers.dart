@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:bookshelf/book/model/book.dart';
-import 'package:bookshelf/helper.dart';
+import 'package:bookshelf/helper/url.dart';
 import 'package:flutter/material.dart';
 import 'package:palette_generator/palette_generator.dart';
 

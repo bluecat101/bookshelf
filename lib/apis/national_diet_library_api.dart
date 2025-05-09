@@ -1,7 +1,7 @@
 import 'package:xml/xml.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
-import 'package:bookshelf/helper.dart';
+import 'package:bookshelf/helper/url.dart';
 
 class NdlBook {
   final String title;
