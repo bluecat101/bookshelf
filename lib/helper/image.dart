@@ -1,10 +1,12 @@
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
-abstract class UrlHelper {
+abstract class ImageHelper {
   Future<bool> existUrl(String url);
+  ImageProvider createNetworkImage(String url);
 }
 
-class UrlHelperImpl implements UrlHelper {
+class ImageHelperImpl implements ImageHelper {
   @override
   Future<bool> existUrl(String url) async {
     try {
@@ -13,5 +15,10 @@ class UrlHelperImpl implements UrlHelper {
     } catch (_) {
       return false;
     }
+  }
+
+  @override
+  ImageProvider createNetworkImage(String url) {
+    return NetworkImage(url);
   }
 }

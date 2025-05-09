@@ -1,4 +1,5 @@
 import 'package:bookshelf/book/index.dart';
+import 'package:bookshelf/helper/image.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -85,7 +86,12 @@ class _NewBookPageState extends State<NewBook> {
         child: Text(book.title, style: TextStyle(fontSize: 7)),
       );
     }
-    return Image.network(book.imageUrl!, height: 100, fit: BoxFit.fitHeight);
+    final ImageHelperImpl imageHelper = getIt<ImageHelperImpl>();
+    return Image(
+      image: imageHelper.createNetworkImage(book.imageUrl!),
+      height: 100,
+      fit: BoxFit.fitHeight,
+    );
   }
 
   //表示する1つの本を作成する

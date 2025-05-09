@@ -1,5 +1,5 @@
 import 'package:bookshelf/apis/national_diet_library_api.dart';
-import 'package:bookshelf/helper/url.dart';
+import 'package:bookshelf/helper/image.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -11,7 +11,7 @@ final getIt = GetIt.instance;
 
 void setupLocator() {
   getIt.registerLazySingleton<BookFetcher>(() => BookFetcher());
-  getIt.registerLazySingleton<UrlHelperImpl>(() => UrlHelperImpl());
+  getIt.registerLazySingleton<ImageHelperImpl>(() => ImageHelperImpl());
 }
 
 void main() async {

@@ -1,4 +1,4 @@
-import 'package:bookshelf/helper/url.dart';
+import 'package:bookshelf/helper/image.dart';
 import 'package:bookshelf/main.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bookshelf/apis/national_diet_library_api.dart';
@@ -25,7 +25,7 @@ Future<void> readyUrlHelperMock() async {
 void initDI() {
   setUpAll(() async {
     mockUrlHelperImpl = MockUrlHelperImpl();
-    getIt.registerLazySingleton<UrlHelperImpl>(() => mockUrlHelperImpl);
+    getIt.registerLazySingleton<ImageHelperImpl>(() => mockUrlHelperImpl);
   });
 
   tearDownAll(() async {
@@ -33,7 +33,7 @@ void initDI() {
   });
 }
 
-@GenerateMocks([UrlHelperImpl])
+@GenerateMocks([ImageHelperImpl])
 void main() {
   initDI();
   group('[正常系]fetchBookInfoThroughNationalDietLibraryのテスト', () {

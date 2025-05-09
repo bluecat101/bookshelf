@@ -1,16 +1,16 @@
 import 'dart:math';
 
 import 'package:bookshelf/book/model/book.dart';
-import 'package:bookshelf/helper/url.dart';
+import 'package:bookshelf/helper/image.dart';
 import 'package:bookshelf/main.dart';
 import 'package:flutter/material.dart';
 import 'package:palette_generator/palette_generator.dart';
 
 FutureBuilder bookSpineContainer(book) {
-  final UrlHelperImpl urlHelper = getIt<UrlHelperImpl>();
+  final ImageHelperImpl imageHelper = getIt<ImageHelperImpl>();
   // 画像から主な色を取得
   Future<Color> getDominantColor(String? imageUrl) async {
-    if (imageUrl != null && await urlHelper.existUrl(imageUrl)) {
+    if (imageUrl != null && await imageHelper.existUrl(imageUrl)) {
       final paletteGenerator = await PaletteGenerator.fromImageProvider(
         NetworkImage(imageUrl),
       );
@@ -92,11 +92,11 @@ FutureBuilder bookSpineContainer(book) {
 Widget bookCoverContainer(Book book) {
   final width = resizeBookWidth(book);
   final height = resizeBookHeight(book);
-  final UrlHelperImpl urlHelper = getIt<UrlHelperImpl>();
+  final ImageHelperImpl imageHelper = getIt<ImageHelperImpl>();
   final Future<bool> urlCheck =
       book.coverImageUrl == null
           ? Future.value(false)
-          : urlHelper.existUrl(book.coverImageUrl!);
+          : imageHelper.existUrl(book.coverImageUrl!);
   return FutureBuilder<bool>(
     future: urlCheck,
     builder: (context, snapshot) {
@@ -121,8 +121,8 @@ Widget bookCoverContainer(Book book) {
           child: Text(book.title, style: const TextStyle(fontSize: 7)),
         );
       } else {
-        return Image.network(
-          book.coverImageUrl!,
+        return Image(
+          image: imageHelper.createNetworkImage(book.coverImageUrl!),
           width: width,
           height: height,
           fit: BoxFit.fitHeight,

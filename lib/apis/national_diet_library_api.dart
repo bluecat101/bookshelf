@@ -2,7 +2,7 @@ import 'package:bookshelf/main.dart';
 import 'package:xml/xml.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
-import 'package:bookshelf/helper/url.dart';
+import 'package:bookshelf/helper/image.dart';
 
 class NdlBook {
   final String title;
@@ -59,8 +59,8 @@ class NdlBook {
           break;
         }
       }
-      final UrlHelperImpl urlHelper = getIt<UrlHelperImpl>();
-      if (imageUrl != null && !(await urlHelper.existUrl(imageUrl))) {
+      final ImageHelperImpl imageHelper = getIt<ImageHelperImpl>();
+      if (imageUrl != null && !(await imageHelper.existUrl(imageUrl))) {
         imageUrl = null;
       }
       ndlBooks.add(

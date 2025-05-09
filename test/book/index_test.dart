@@ -1,4 +1,4 @@
-import 'package:bookshelf/helper/url.dart';
+import 'package:bookshelf/helper/image.dart';
 import 'package:bookshelf/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -63,7 +63,7 @@ Future<void> displayDialog(WidgetTester tester) async {
 void initDI() {
   setUpAll(() async {
     mockUrlHelperImpl = MockUrlHelperImpl();
-    getIt.registerLazySingleton<UrlHelperImpl>(() => mockUrlHelperImpl);
+    getIt.registerLazySingleton<ImageHelperImpl>(() => mockUrlHelperImpl);
   });
 
   tearDownAll(() async {
@@ -71,7 +71,7 @@ void initDI() {
   });
 }
 
-@GenerateMocks([UrlHelperImpl])
+@GenerateMocks([ImageHelperImpl])
 void main() {
   initDI();
   testWidgets('[成功時]表紙の画像が登録されている時はその画像が表示される', (WidgetTester tester) async {
