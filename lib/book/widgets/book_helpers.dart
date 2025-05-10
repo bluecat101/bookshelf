@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:bookshelf/book/model/book.dart';
@@ -66,25 +67,36 @@ FutureBuilder bookSpineContainer(book) {
         spineColor = snapshot.data!;
       }
       final textColor = isDarkColor(spineColor) ? Colors.white : Colors.black;
-      return Container(
-        width: resizeBookThickness(book),
-        height: resizeBookHeight(book),
-        color: spineColor,
-        child: Column(
-          children: // 縦書きにする
-              bookSpineTitle.split('').map<Widget>((char) {
-                return Text(
-                  char,
-                  style: TextStyle(
-                    fontSize: fontSize.toDouble(),
-                    height: (1 + paddingRatio),
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
-                  ),
-                );
-              }).toList(),
-        ),
-      );
+      final width = resizeBookThickness(book);
+      final height = resizeBookHeight(book);
+      if (book.spineImagePath != null) {
+        return Image(
+          image: FileImage(File(book.spineImagePath!)),
+          width: width,
+          height: height,
+          fit: BoxFit.fill,
+        );
+      } else {
+        return Container(
+          width: width,
+          height: height,
+          color: spineColor,
+          child: Column(
+            children: // 縦書きにする
+                bookSpineTitle.split('').map<Widget>((char) {
+                  return Text(
+                    char,
+                    style: TextStyle(
+                      fontSize: fontSize.toDouble(),
+                      height: (1 + paddingRatio),
+                      fontWeight: FontWeight.bold,
+                      color: textColor,
+                    ),
+                  );
+                }).toList(),
+          ),
+        );
+      }
     },
   );
 }
@@ -110,7 +122,21 @@ Widget bookCoverContainer(Book book) {
       }
 
       final urlExists = snapshot.data!;
-      if (book.coverImageUrl == null || !urlExists) {
+      if (book.coverImagePath != null) {
+        return Image(
+          image: FileImage(File(book.coverImagePath!)),
+          width: width,
+          height: height,
+          fit: BoxFit.fill,
+        );
+      } else if (book.coverImageUrl != null || urlExists) {
+        return Image(
+          image: imageHelper.createNetworkImage(book.coverImageUrl!),
+          width: width,
+          height: height,
+          fit: BoxFit.fitHeight,
+        );
+      } else {
         return Container(
           width: width,
           height: height,
@@ -119,13 +145,6 @@ Widget bookCoverContainer(Book book) {
             border: Border.all(color: Colors.black, width: 1),
           ),
           child: Text(book.title, style: const TextStyle(fontSize: 7)),
-        );
-      } else {
-        return Image(
-          image: imageHelper.createNetworkImage(book.coverImageUrl!),
-          width: width,
-          height: height,
-          fit: BoxFit.fitHeight,
         );
       }
     },
