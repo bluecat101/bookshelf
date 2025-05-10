@@ -12,7 +12,7 @@ FutureBuilder bookSpineContainer(book) {
   Future<Color> getDominantColor(String? imageUrl) async {
     if (imageUrl != null && await imageHelper.existUrl(imageUrl)) {
       final paletteGenerator = await PaletteGenerator.fromImageProvider(
-        NetworkImage(imageUrl),
+        imageHelper.createNetworkImage(imageUrl),
       );
       return paletteGenerator.dominantColor?.color ?? Colors.grey;
     }

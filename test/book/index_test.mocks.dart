@@ -3,9 +3,10 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i3;
+import 'dart:async' as _i4;
 
-import 'package:bookshelf/helper/image.dart' as _i2;
+import 'package:bookshelf/helper/image.dart' as _i3;
+import 'package:flutter/cupertino.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -22,19 +23,47 @@ import 'package:mockito/mockito.dart' as _i1;
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
 
-/// A class which mocks [UrlHelperImpl].
+class _FakeImageProvider_0<T extends Object> extends _i1.SmartFake
+    implements _i2.ImageProvider<T> {
+  _FakeImageProvider_0(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+/// A class which mocks [ImageHelperImpl].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockUrlHelperImpl extends _i1.Mock implements _i2.ImageHelperImpl {
-  MockUrlHelperImpl() {
+class MockImageHelperImpl extends _i1.Mock implements _i3.ImageHelperImpl {
+  MockImageHelperImpl() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i3.Future<bool> existUrl(String? url) =>
+  _i4.Future<bool> existUrl(String? url) => (super.noSuchMethod(
+        Invocation.method(
+          #existUrl,
+          [url],
+        ),
+        returnValue: _i4.Future<bool>.value(false),
+      ) as _i4.Future<bool>);
+
+  @override
+  _i2.ImageProvider<Object> createNetworkImage(String? url) =>
       (super.noSuchMethod(
-            Invocation.method(#existUrl, [url]),
-            returnValue: _i3.Future<bool>.value(false),
-          )
-          as _i3.Future<bool>);
+        Invocation.method(
+          #createNetworkImage,
+          [url],
+        ),
+        returnValue: _FakeImageProvider_0<Object>(
+          this,
+          Invocation.method(
+            #createNetworkImage,
+            [url],
+          ),
+        ),
+      ) as _i2.ImageProvider<Object>);
 }

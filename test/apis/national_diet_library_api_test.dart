@@ -7,7 +7,7 @@ import 'package:mockito/mockito.dart';
 
 import 'national_diet_library_api_test.mocks.dart';
 
-late MockUrlHelperImpl mockUrlHelperImpl;
+late MockImageHelperImpl mockUrlHelperImpl;
 
 NdlBook getSampleBook() {
   return NdlBook(
@@ -24,7 +24,7 @@ Future<void> readyUrlHelperMock() async {
 
 void initDI() {
   setUpAll(() async {
-    mockUrlHelperImpl = MockUrlHelperImpl();
+    mockUrlHelperImpl = MockImageHelperImpl();
     getIt.registerLazySingleton<ImageHelperImpl>(() => mockUrlHelperImpl);
   });
 
