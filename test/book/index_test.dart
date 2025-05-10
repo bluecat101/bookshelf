@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bookshelf/book/show.dart';
 import 'package:bookshelf/helper/image.dart';
 import 'package:bookshelf/main.dart';
@@ -66,7 +68,7 @@ Future<void> readyMockImageHelper({
   when(mockUrlHelperImpl.existUrl(any)).thenAnswer((_) async => existUrl);
   when(
     mockUrlHelperImpl.createNetworkImage(any),
-  ).thenReturn(AssetImage(displayImage));
+  ).thenReturn(FileImage(File(displayImage)));
 }
 
 Future<void> setupIndexWithBooks({
@@ -132,7 +134,7 @@ void main() {
   ) async {
     //  Arrange
     // urlであるがテスト中はhttpリクエストが400番であるためAssetImageとなる
-    final expectImage = AssetImage(sampleUrlImage);
+    final expectImage = FileImage(File(sampleUrlImage));
     await setupIndexWithBooks(
       tester: tester,
       existUrl: true,
@@ -149,7 +151,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Arrange
-    final expectImage = AssetImage(sampleLocalImage);
+    final expectImage = FileImage(File(sampleLocalImage));
     await setupIndexWithBooks(
       tester: tester,
       existUrl: false,
@@ -192,16 +194,15 @@ void main() {
     WidgetTester tester,
   ) async {
     // Arrange
-    final expectImage = AssetImage(sampleLocalImage);
+    final expectImage = FileImage(File(sampleLocalImage));
     final targetBookIndex = BookType.hasImagePath.index;
     await setupIndexWithBooks(
       tester: tester,
       existUrl: false,
       displayImage: sampleLocalImage,
     );
-
     // Act
-    final targetBook = find.byType(ConstrainedBox).at(targetBookIndex);
+    final targetBook = find.byType(InkWell).at(targetBookIndex);
     final imageFinder = findImageIn(tester, targetBook);
 
     // Assert
@@ -223,7 +224,7 @@ void main() {
     );
 
     // Assert
-    final targetBook = find.byType(ConstrainedBox).at(targetBookIndex);
+    final targetBook = find.byType(InkWell).at(targetBookIndex);
     final textFinder = find.descendant(
       of: targetBook,
       matching: find.byType(Text),
