@@ -18,7 +18,7 @@ dependencies:
   mockito: ^5.4.5
   get_it: ^8.0.3
   palette_generator: ^0.3.3+6
-  file_picker: ^10.1.2
+  file_picker: ^10.1.7
   path: ^1.9.1
   flutter_secure_storage: ^4.2.1
   
