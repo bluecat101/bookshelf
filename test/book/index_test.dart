@@ -7,11 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bookshelf/book/index.dart';
 import 'package:bookshelf/book/model/book.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
-import 'index_test.mocks.dart';
+import '../mocks/image_helper_test.mocks.dart';
+import '../mocks/image_helper_test_setup.dart';
 
-late MockImageHelperImpl mockUrlHelperImpl;
+late MockImageHelperImpl mockImageHelper;
 
 const sampleLocalImage = 'test/assets/test_image.png';
 // testで実際のhttpリクエストを送ると400番になるため画像はローカルに保存しておく
@@ -65,10 +64,8 @@ Future<void> readyMockImageHelper({
   required bool existUrl,
   required String displayImage,
 }) async {
-  when(mockUrlHelperImpl.existUrl(any)).thenAnswer((_) async => existUrl);
-  when(
-    mockUrlHelperImpl.createNetworkImage(any),
-  ).thenReturn(FileImage(File(displayImage)));
+  mockExistUrl(mockImageHelper, existUrl);
+  mockCreateNetworkImage(mockImageHelper, displayImage);
 }
 
 Future<void> setupIndexWithBooks({
@@ -117,8 +114,8 @@ Future<void> tapTextButton(WidgetTester tester, String textInButton) async {
 
 void initDI() {
   setUpAll(() async {
-    mockUrlHelperImpl = MockImageHelperImpl();
-    getIt.registerLazySingleton<ImageHelperImpl>(() => mockUrlHelperImpl);
+    mockImageHelper = MockImageHelperImpl();
+    getIt.registerLazySingleton<ImageHelperImpl>(() => mockImageHelper);
   });
 
   tearDownAll(() async {
@@ -126,7 +123,6 @@ void initDI() {
   });
 }
 
-@GenerateMocks([ImageHelperImpl])
 void main() {
   initDI();
   testWidgets('[成功時]表紙の画像がURLのみ登録されている時、URLの画像が表示される', (

@@ -25,13 +25,8 @@ import 'package:mockito/mockito.dart' as _i1;
 
 class _FakeImageProvider_0<T extends Object> extends _i1.SmartFake
     implements _i2.ImageProvider<T> {
-  _FakeImageProvider_0(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeImageProvider_0(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 /// A class which mocks [ImageHelperImpl].
@@ -43,27 +38,21 @@ class MockImageHelperImpl extends _i1.Mock implements _i3.ImageHelperImpl {
   }
 
   @override
-  _i4.Future<bool> existUrl(String? url) => (super.noSuchMethod(
-        Invocation.method(
-          #existUrl,
-          [url],
-        ),
-        returnValue: _i4.Future<bool>.value(false),
-      ) as _i4.Future<bool>);
+  _i4.Future<bool> existUrl(String? url) =>
+      (super.noSuchMethod(
+            Invocation.method(#existUrl, [url]),
+            returnValue: _i4.Future<bool>.value(false),
+          )
+          as _i4.Future<bool>);
 
   @override
   _i2.ImageProvider<Object> createNetworkImage(String? url) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #createNetworkImage,
-          [url],
-        ),
-        returnValue: _FakeImageProvider_0<Object>(
-          this,
-          Invocation.method(
-            #createNetworkImage,
-            [url],
-          ),
-        ),
-      ) as _i2.ImageProvider<Object>);
+            Invocation.method(#createNetworkImage, [url]),
+            returnValue: _FakeImageProvider_0<Object>(
+              this,
+              Invocation.method(#createNetworkImage, [url]),
+            ),
+          )
+          as _i2.ImageProvider<Object>);
 }

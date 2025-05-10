@@ -5,28 +5,10 @@ import 'package:bookshelf/book/show.dart';
 import 'dart:io';
 import 'package:hive/hive.dart';
 import 'package:bookshelf/book/model/book.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
-import 'package:path/path.dart';
-
-import 'show_test.mocks.dart';
+import '../mocks/file_upload_test.mocks.dart';
+import '../mocks/file_upload_test_setup.dart';
 
 late Box<Book> bookshelf;
-Future<FileUploader> mockPickFileSuccess({
-  String filePath = 'sample_file_path.png',
-}) async {
-  final fileName = basename(filePath);
-  return FileUploader(
-    state: FileSelectionState.loadSuccess,
-    path: File(filePath),
-    fileName: fileName,
-  );
-}
-
-Future<FileUploader> mockPickFileFailure() async {
-  return FileUploader(state: FileSelectionState.loadFailure);
-}
-
 // ダミーデータの作成
 Book dummyBook() {
   return Book(
@@ -84,15 +66,15 @@ Future<void> changeTextFormField(
 Future<void> readyShow({
   required WidgetTester tester,
   Book? book,
-  Future<FileUploader>? mockPickFile,
+  Future<FileUploader>? pickFileResult,
 }) async {
   book ??= dummyBook();
-  mockPickFile ??= mockPickFileSuccess();
+  pickFileResult ??= mockPickFileSuccess('sample_file_path.png');
   final mockFileUploader = MockFileUploader();
   await tester.pumpWidget(
     MaterialApp(home: Show(book: book, fileUploader: mockFileUploader)),
   );
-  when(mockFileUploader.pickFile()).thenAnswer((_) => mockPickFile!);
+  mockPickFile(mockFileUploader, pickFileResult);
   await tester.pumpAndSettle();
 }
 
@@ -111,7 +93,6 @@ Finder findTextWidgetWithText(String text) {
   );
 }
 
-@GenerateMocks([FileUploader])
 void main() {
   initHive();
   testWidgets('bookのカラム(title,author,height,width,pages,comment)のフォームが存在する', (
@@ -132,7 +113,8 @@ void main() {
   testWidgets('[成功時]表紙の画像のアップロード時、ファイル名が表示される(更新は含まない)', (
     WidgetTester tester,
   ) async {
-    final String expectedFileName = (await mockPickFileSuccess()).fileName!;
+    final String expectedFileName = 'sample_file_path.png';
+    // (await mockPickFileSuccess()).fileName!;
     await readyShow(tester: tester);
 
     final uploadButton = find.widgetWithText(ElevatedButton, 'アップロード').at(0);
@@ -143,7 +125,8 @@ void main() {
   testWidgets('[成功時]背表紙の画像のアップロード時、ファイル名が表示される(更新は含まない)', (
     WidgetTester tester,
   ) async {
-    final String expectedFileName = (await mockPickFileSuccess()).fileName!;
+    final String expectedFileName = 'sample_file_path.png';
+    // final String expectedFileName = (await mockPickFileSuccess()).fileName!;
     await readyShow(tester: tester);
 
     final uploadButton = find.widgetWithText(ElevatedButton, 'アップロード').at(1);
@@ -155,7 +138,7 @@ void main() {
     WidgetTester tester,
   ) async {
     final String expectedText = 'アップロードに失敗しました';
-    await readyShow(tester: tester, mockPickFile: mockPickFileFailure());
+    await readyShow(tester: tester, pickFileResult: mockPickFileFailure());
 
     final uploadButton = find.widgetWithText(ElevatedButton, 'アップロード').at(0);
     await fileUpload(tester, uploadButton);
@@ -166,7 +149,7 @@ void main() {
     WidgetTester tester,
   ) async {
     final String expectedText = 'アップロードに失敗しました';
-    await readyShow(tester: tester, mockPickFile: mockPickFileFailure());
+    await readyShow(tester: tester, pickFileResult: mockPickFileFailure());
 
     final uploadButton = find.widgetWithText(ElevatedButton, 'アップロード').at(1);
     await fileUpload(tester, uploadButton);
@@ -201,13 +184,9 @@ void main() {
     await changeTextFormField(tester, 'width', updatedWidth.toString());
     await changeTextFormField(tester, 'comment', updatedComment.toString());
     // 2回同じ関数を使って別の返り値を欲するため、ここでmockする
-    when(
-      mockFileUploader.pickFile(),
-    ).thenAnswer((_) => mockPickFileSuccess(filePath: updatedCoverImagePath));
+    mockPickFile(mockFileUploader, mockPickFileSuccess(updatedCoverImagePath));
     await fileUpload(tester, coverImageUpdateButton);
-    when(
-      mockFileUploader.pickFile(),
-    ).thenAnswer((_) => mockPickFileSuccess(filePath: updatedSpineImagePath));
+    mockPickFile(mockFileUploader, mockPickFileSuccess(updatedSpineImagePath));
     await fileUpload(tester, spineImageUpdateButton);
     // スクロールしてから更新ボタンをクリック
     final updateButton = find.widgetWithText(ElevatedButton, '更新する');

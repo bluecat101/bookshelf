@@ -1,15 +1,23 @@
 import 'package:bookshelf/apis/national_diet_library_api.dart';
+import 'package:bookshelf/helper/image.dart';
 import 'package:bookshelf/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bookshelf/book/new_book.dart';
 import 'package:bookshelf/book/index.dart';
-import 'package:mockito/annotations.dart';
 import 'dart:io';
 import 'package:hive/hive.dart';
 import 'package:bookshelf/book/model/book.dart';
-import 'package:mockito/mockito.dart';
-import 'new_book_test.mocks.dart';
+
+import '../mocks/image_helper_test.mocks.dart';
+import '../mocks/national_diet_library_api_test.mocks.dart';
+import '../mocks/national_diet_library_api_test_setup.dart';
+
+late MockImageHelperImpl mockImageHelper;
+late MockBookFetcher mockBookFetcher;
+
+// testで実際のhttpリクエストを送ると400番になるため画像はローカルに保存しておく
+const sampleUrlImage = 'test/assets/test_url_image.png';
 
 NdlBook mockNdlBook({
   String title = 'sample title',
@@ -27,18 +35,6 @@ Future<List<NdlBook>> mockNdlBooks(NdlBook? book) async {
   return [book];
 }
 
-Future<BookSize> mockEmptyBookSize() async {
-  return BookSize();
-}
-
-Future<BookSize> mockValidBookSize({
-  int width = 1,
-  int height = 1,
-  int pages = 1,
-}) async {
-  return BookSize(width: width, height: height, pages: pages);
-}
-
 // 失敗時の入力フォーム
 Future<void> enterInvalidFormInput(WidgetTester tester) async {
   final titleField = find.widgetWithText(TextFormField, 'title');
@@ -52,7 +48,7 @@ Future<void> enterValidFormInput(WidgetTester tester, String title) async {
 }
 
 // Hiveを初期化する
-void initHive() {
+void init() {
   // テスト用の一時ディレクトリを用意
   final hiveDirPath = 'test/book/model/hive_test';
   setUpAll(() async {
@@ -60,7 +56,10 @@ void initHive() {
     Hive.registerAdapter(BookAdapter());
     await Hive.openBox<Book>('book');
     // DI
-    getIt.registerLazySingleton<BookFetcher>(() => MockBookFetcher());
+    mockBookFetcher = MockBookFetcher();
+    getIt.registerLazySingleton<BookFetcher>(() => mockBookFetcher);
+    mockImageHelper = MockImageHelperImpl();
+    getIt.registerLazySingleton<ImageHelperImpl>(() => mockImageHelper);
   });
 
   tearDownAll(() async {
@@ -76,18 +75,16 @@ void initHive() {
 Future<void> prepareSearchResult({
   required WidgetTester tester,
   NdlBook? book,
-  Future<BookSize>? funcMockBookSize,
+  Future<BookSize>? bookSizeResult,
 }) async {
   book ??= mockNdlBook();
-  funcMockBookSize ??= mockValidBookSize();
-  // DI
-  final mockBookFetcher = getIt<BookFetcher>();
-  when(
-    mockBookFetcher.fetchBookInfoThroughNationalDietLibrary(book.title),
-  ).thenAnswer((_) async => await mockNdlBooks(book));
-  when(
-    mockBookFetcher.fetchBookSize(book),
-  ).thenAnswer((_) => funcMockBookSize!);
+  bookSizeResult ??= mockValidBookSize();
+
+  mockFetchBookInfoThroughNationalDietLibrary(
+    mockBookFetcher,
+    mockNdlBooks(book),
+  );
+  mockFetchBookSize(mockBookFetcher, bookSizeResult);
 
   await tester.pumpWidget(MaterialApp(home: NewBook()));
   await enterValidFormInput(tester, book.title);
@@ -119,9 +116,8 @@ Future<void> tapAddBookButton(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-@GenerateMocks([BookFetcher])
 void main() {
-  initHive(); // Hiveの初期化
+  init(); // Hiveの初期化
   testWidgets('タイトルのフォームが機能するかの確認', (WidgetTester tester) async {
     final title = 'sample title';
     await tester.pumpWidget(MaterialApp(home: NewBook()));
@@ -162,7 +158,7 @@ void main() {
     await prepareSearchResult(
       tester: tester,
       book: book,
-      funcMockBookSize: mockValidBookSize(
+      bookSizeResult: mockValidBookSize(
         width: width,
         height: height,
         pages: pages,
@@ -190,7 +186,7 @@ void main() {
   testWidgets('[成功時]本のサイズの未取得時、入力欄を含むダイアログが表示される', (WidgetTester tester) async {
     await prepareSearchResult(
       tester: tester,
-      funcMockBookSize: mockEmptyBookSize(),
+      bookSizeResult: mockEmptyBookSize(),
     );
     await tapFirstBook(tester);
     // ダイアログの表示
@@ -217,7 +213,7 @@ void main() {
     await prepareSearchResult(
       tester: tester,
       book: book,
-      funcMockBookSize: mockEmptyBookSize(),
+      bookSizeResult: mockEmptyBookSize(),
     ); // 本のサイズは未取得
     await tapFirstBook(tester);
     await enterBookSize(tester: tester, bookSize: bookSize);
@@ -239,7 +235,7 @@ void main() {
   ) async {
     await prepareSearchResult(
       tester: tester,
-      funcMockBookSize: mockEmptyBookSize(),
+      bookSizeResult: mockEmptyBookSize(),
     );
     await tapFirstBook(tester);
     await enterBookSize(tester: tester);
@@ -263,7 +259,7 @@ void main() {
     final expectedBooksLen = books.length;
     await prepareSearchResult(
       tester: tester,
-      funcMockBookSize: mockEmptyBookSize(),
+      bookSizeResult: mockEmptyBookSize(),
     ); // 本のサイズは未取得
     await tapFirstBook(tester);
     await tapAddBookButton(tester);
@@ -277,7 +273,7 @@ void main() {
   ) async {
     await prepareSearchResult(
       tester: tester,
-      funcMockBookSize: mockEmptyBookSize(),
+      bookSizeResult: mockEmptyBookSize(),
     ); // 本のサイズは未取得
     await tapFirstBook(tester);
     await tapAddBookButton(tester);

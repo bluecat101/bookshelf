@@ -3,11 +3,12 @@ import 'package:bookshelf/main.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bookshelf/apis/national_diet_library_api.dart';
 import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
 
-import 'national_diet_library_api_test.mocks.dart';
+import '../mocks/image_helper_test.mocks.dart';
+import '../mocks/image_helper_test_setup.dart';
 
-late MockImageHelperImpl mockUrlHelperImpl;
+@GenerateMocks([BookFetcher])
+late MockImageHelperImpl mockImageHelper;
 
 NdlBook getSampleBook() {
   return NdlBook(
@@ -19,13 +20,13 @@ NdlBook getSampleBook() {
 }
 
 Future<void> readyUrlHelperMock() async {
-  when(mockUrlHelperImpl.existUrl(any)).thenAnswer((_) async => true);
+  mockExistUrl(mockImageHelper, true);
 }
 
 void initDI() {
   setUpAll(() async {
-    mockUrlHelperImpl = MockImageHelperImpl();
-    getIt.registerLazySingleton<ImageHelperImpl>(() => mockUrlHelperImpl);
+    mockImageHelper = MockImageHelperImpl();
+    getIt.registerLazySingleton<ImageHelperImpl>(() => mockImageHelper);
   });
 
   tearDownAll(() async {
@@ -33,7 +34,6 @@ void initDI() {
   });
 }
 
-@GenerateMocks([ImageHelperImpl])
 void main() {
   initDI();
   group('[正常系]fetchBookInfoThroughNationalDietLibraryのテスト', () {
