@@ -41,7 +41,7 @@ enum BookType { hasUrl, hasImagePath, hasNoUrlAndPath }
 
 extension BookTypeExtension on BookType {
   int get index {
-    return this.index; // enum のインデックス番号（0, 1, 2...）
+    return this.index;
   }
 }
 
@@ -49,13 +49,11 @@ Future<List<Book>> dummyBooks() async {
   return [
     // URLのみ
     makeDummyBook(coverImageUrl: sampleUrlImage),
-
     // 画像のpathを持っている
     makeDummyBook(
       coverImagePath: sampleLocalImage,
       spineImagePath: sampleLocalImage,
     ),
-
     // 画像なし
     makeDummyBook(),
   ];
@@ -68,14 +66,14 @@ Future<void> readyMockImageHelper({
   when(mockUrlHelperImpl.existUrl(any)).thenAnswer((_) async => existUrl);
   when(
     mockUrlHelperImpl.createNetworkImage(any),
-  ).thenReturn(AssetImage(sampleUrlImage));
+  ).thenReturn(AssetImage(displayImage));
 }
 
 Future<void> setupIndexWithBooks({
   Future<List<Book>>? futureBooks,
   required WidgetTester tester,
-  required bool existUrl,
-  required String displayImage,
+  bool existUrl = false,
+  String displayImage = sampleUrlImage,
 }) async {
   futureBooks ??= dummyBooks();
   await readyMockImageHelper(existUrl: existUrl, displayImage: displayImage);
@@ -83,12 +81,8 @@ Future<void> setupIndexWithBooks({
   await tester.pumpAndSettle();
 }
 
-ImageProvider findImageIn(WidgetTester tester, Finder parentContainer) {
-  final imageFinder = find.descendant(
-    of: parentContainer,
-    matching: find.byType(Image),
-  );
-  return tester.widget<Image>(imageFinder).image;
+Finder findImageIn(WidgetTester tester, Finder parentContainer) {
+  return find.descendant(of: parentContainer, matching: find.byType(Image));
 }
 
 Finder findTextIn({
@@ -108,11 +102,15 @@ Future<void> tapToShowDialog(
   WidgetTester tester, {
   BookType? tapBookType,
 }) async {
-  tapBookType ??= BookType.hasUrl;
-  final tapBookIndex = tapBookType.index;
+  final tapBookIndex = (tapBookType ?? BookType.hasUrl).index;
   await tester.tap(find.byType(InkWell).at(tapBookIndex));
   // pumpAndSettleだと処理が終わらないため
   await tester.pumpAndSettle(const Duration(seconds: 20));
+}
+
+Future<void> tapTextButton(WidgetTester tester, String textInButton) async {
+  await tester.tap(find.widgetWithText(TextButton, textInButton));
+  await tester.pumpAndSettle();
 }
 
 void initDI() {
@@ -132,6 +130,7 @@ void main() {
   testWidgets('[成功時]表紙の画像がURLのみ登録されている時、URLの画像が表示される', (
     WidgetTester tester,
   ) async {
+    //  Arrange
     // urlであるがテスト中はhttpリクエストが400番であるためAssetImageとなる
     final expectImage = AssetImage(sampleUrlImage);
     await setupIndexWithBooks(
@@ -139,29 +138,35 @@ void main() {
       existUrl: true,
       displayImage: sampleUrlImage,
     );
+    // Act
     await tapToShowDialog(tester, tapBookType: BookType.hasUrl);
-    final image = findImageIn(tester, find.byType(Dialog));
-
-    expect(image, expectImage);
+    // Assert
+    final imageFinder = findImageIn(tester, find.byType(Dialog));
+    expect(tester.widget<Image>(imageFinder).image, expectImage);
   });
 
   testWidgets('[成功時]表紙の画像のpathが登録されている時、その画像が表示される', (
     WidgetTester tester,
   ) async {
+    // Arrange
     final expectImage = AssetImage(sampleLocalImage);
     await setupIndexWithBooks(
       tester: tester,
       existUrl: false,
       displayImage: sampleLocalImage,
     );
-    await tapToShowDialog(tester, tapBookType: BookType.hasImagePath);
-    final image = findImageIn(tester, find.byType(Dialog));
 
-    expect(image, expectImage);
+    // Act
+    await tapToShowDialog(tester, tapBookType: BookType.hasImagePath);
+
+    // Assert
+    final imageFinder = findImageIn(tester, find.byType(Dialog));
+    expect(tester.widget<Image>(imageFinder).image, expectImage);
   });
   testWidgets('[成功時]表紙の画像のURL、pathが登録されていない時、画像が表示されずタイトルが表示される', (
     WidgetTester tester,
   ) async {
+    // Arrange
     final books = dummyBooks();
     final tapIndex = 2;
     final expectText = (await books)[tapIndex].title;
@@ -171,8 +176,10 @@ void main() {
       existUrl: false,
       displayImage: sampleLocalImage,
     );
+    // Act
     await tapToShowDialog(tester, tapBookType: BookType.hasNoUrlAndPath);
 
+    // Assert
     final textFinder = findTextIn(
       tester: tester,
       parentContainer: find.byType(Dialog),
@@ -184,6 +191,7 @@ void main() {
   testWidgets('[成功時]背表紙の画像のpathが登録されている時、その画像が表示される', (
     WidgetTester tester,
   ) async {
+    // Arrange
     final expectImage = AssetImage(sampleLocalImage);
     final targetBookIndex = BookType.hasImagePath.index;
     await setupIndexWithBooks(
@@ -192,17 +200,20 @@ void main() {
       displayImage: sampleLocalImage,
     );
 
+    // Act
     final targetBook = find.byType(ConstrainedBox).at(targetBookIndex);
-    final image = findImageIn(tester, targetBook);
-    expect(image, expectImage);
+    final imageFinder = findImageIn(tester, targetBook);
+
+    // Assert
+    expect(tester.widget<Image>(imageFinder).image, expectImage);
   });
 
   testWidgets('[成功時]背表紙の画像pathが登録されていない時、画像が表示されずタイトルが表示される', (
     WidgetTester tester,
   ) async {
+    // Arrange
     final books = dummyBooks();
     final targetBookIndex = BookType.hasNoUrlAndPath.index;
-    // final bookHeight = (await books)[targetBookIndex].height;
     final expectText = (await books)[targetBookIndex].title;
     await setupIndexWithBooks(
       futureBooks: books,
@@ -210,8 +221,9 @@ void main() {
       existUrl: false,
       displayImage: sampleLocalImage,
     );
-    final targetBook = find.byType(ConstrainedBox).at(targetBookIndex);
 
+    // Assert
+    final targetBook = find.byType(ConstrainedBox).at(targetBookIndex);
     final textFinder = find.descendant(
       of: targetBook,
       matching: find.byType(Text),
@@ -222,37 +234,35 @@ void main() {
     }
   });
 
-  testWidgets('表示されている個数が合っている', (WidgetTester tester) async {
-    await tester.pumpWidget(
-      MaterialApp(home: Index(booksFuture: dummyBooks())),
-    );
+  testWidgets('[成功時]表示されている個数が合っている', (WidgetTester tester) async {
+    // Arrange
+    final books = dummyBooks();
+    await tester.pumpWidget(MaterialApp(home: Index(booksFuture: books)));
     await tester.pumpAndSettle();
-    final books = await dummyBooks();
-    expect(find.byType(InkWell), findsNWidgets(books.length));
+    // Assert
+    expect(find.byType(InkWell), findsNWidgets((await books).length));
   });
 
-  testWidgets('widgetを押した時にダイアログの表示後、キャンセルして元の画面に戻る', (
+  testWidgets('[成功時]widgetを押した時にダイアログの表示後、キャンセルして元の画面に戻る', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(
-      MaterialApp(home: Index(booksFuture: dummyBooks())),
-    );
-    await tester.pumpAndSettle();
+    // Arrange
+    await setupIndexWithBooks(tester: tester);
+    // Act
     await tapToShowDialog(tester);
-    await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
-    await tester.pumpAndSettle();
+    await tapTextButton(tester, 'Cancel');
+    // Assert
     expect(find.byType(Index), findsOneWidget);
   });
-  testWidgets('widgetを押した時にダイアログの表示後、showページに遷移できる', (
+  testWidgets('[成功時]widgetを押した時にダイアログの表示後、showページに遷移できる', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(
-      MaterialApp(home: Index(booksFuture: dummyBooks())),
-    );
-    await tester.pumpAndSettle();
+    // Arrange
+    await setupIndexWithBooks(tester: tester);
+    // Act
     await tapToShowDialog(tester);
-    await tester.tap(find.widgetWithText(TextButton, 'Show'));
-    await tester.pumpAndSettle();
+    await tapTextButton(tester, 'Show');
+    // Assert
     expect(find.byType(Show), findsOneWidget);
   });
 }

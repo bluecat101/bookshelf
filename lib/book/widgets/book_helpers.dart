@@ -37,7 +37,7 @@ FutureBuilder bookSpineContainer(book) {
   double calculateFontSize(double height, int charCount) {
     // 以下の式は、widgetの高さ = 文字数*(fontSize+余白)+余白についてfontSizeを解く式
     final fontSize = height / (charCount * (1 + paddingRatio) + paddingRatio);
-    return fontSize < minimumFontSize ? minimumFontSize : fontSize;
+    return max(fontSize, minimumFontSize);
   }
 
   /// フォントサイズと高さから、収まる最大文字数を計算
