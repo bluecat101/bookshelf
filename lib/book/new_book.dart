@@ -1,4 +1,5 @@
 import 'package:bookshelf/book/index.dart';
+import 'package:bookshelf/book/logic/book_repository.dart';
 import 'package:bookshelf/helper/image.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
@@ -38,12 +39,7 @@ class _NewBookPageState extends State<NewBook> {
   void _navigateToIndex(BuildContext context) {
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
-        pageBuilder:
-            (_, __, ___) => Index(
-              booksFuture: Hive.openBox<Book>(
-                'book',
-              ).then((box) => box.values.toList()),
-            ),
+        pageBuilder: (_, __, ___) => Index(repository: BookRepository()),
         transitionDuration: Duration.zero, // 遷移時のアニメーションをなくす
       ),
     );

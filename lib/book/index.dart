@@ -1,3 +1,4 @@
+import 'package:bookshelf/book/logic/book_repository.dart';
 import 'package:bookshelf/book/logic/file_upload.dart';
 import 'package:bookshelf/book/show.dart';
 import 'package:bookshelf/book/widgets/book_helpers.dart';
@@ -7,8 +8,8 @@ import 'package:flutter/material.dart';
 import 'model/book.dart';
 
 class Index extends StatefulWidget {
-  final Future<List<Book>> booksFuture;
-  const Index({super.key, required this.booksFuture});
+  final BookRepository repository;
+  const Index({super.key, required this.repository});
 
   @override
   State<Index> createState() => _IndexPageState();
@@ -17,9 +18,11 @@ class Index extends StatefulWidget {
 class _IndexPageState extends State<Index> {
   final Set<Book> _readBook = {};
   late bool isAnimating = false;
+  late Future<List<Book>> booksFuture;
   @override
   void initState() {
     super.initState();
+    booksFuture = widget.repository.fetchBooks();
   }
 
   @override
@@ -27,7 +30,7 @@ class _IndexPageState extends State<Index> {
     return Scaffold(
       appBar: AppBar(title: Text('Index')),
       body: FutureBuilder<List<Book>>(
-        future: widget.booksFuture,
+        future: booksFuture,
         builder: (BuildContext context, AsyncSnapshot<List<Book>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return CircularProgressIndicator();
@@ -57,6 +60,9 @@ class _IndexPageState extends State<Index> {
         },
       ),
     );
+    setState(() {
+      booksFuture = widget.repository.fetchBooks();
+    });
   }
 
   Future<void> _confirmBookActionDialog(Book book) {

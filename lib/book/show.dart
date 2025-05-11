@@ -71,14 +71,23 @@ class _ShowPageState extends State<Show> {
 
   Future<bool> updateBook(Book book) async {
     if (_formKey.currentState!.validate()) {
-      book.title = _titleController.text;
-      book.author = _authorController.text;
-      book.pages = int.parse(_pageController.text);
-      book.height = int.parse(_heightController.text);
-      book.width = int.parse(_widthController.text);
-      book.comment = _commentController.text;
-      book.coverImagePath = await _coverImageFile.saveImageFromPath();
-      book.spineImagePath = await _spineImageFile.saveImageFromPath();
+      final updatedBook = Book(
+        title: _titleController.text,
+        author: _authorController.text,
+        pages: int.parse(_pageController.text),
+        height: int.parse(_heightController.text),
+        width: int.parse(_widthController.text),
+        comment: _commentController.text,
+        coverImageUrl: book.coverImageUrl,
+        coverImagePath: await _coverImageFile.saveImageFromPath(),
+        spineImagePath: await _spineImageFile.saveImageFromPath(),
+      );
+      final (box, bookIndex) = await fetchBookIndex(book);
+      if (bookIndex == -1) {
+        return false;
+      }
+      box.putAt(bookIndex, updatedBook);
+      await box.compact();
       return true;
     }
     return false;

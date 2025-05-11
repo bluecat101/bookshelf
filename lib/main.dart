@@ -1,4 +1,5 @@
 import 'package:bookshelf/apis/national_diet_library_api.dart';
+import 'package:bookshelf/book/logic/book_repository.dart';
 import 'package:bookshelf/helper/image.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -68,12 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder:
-                        (context) => Index(
-                          booksFuture: Hive.openBox<Book>(
-                            'book',
-                          ).then((box) => box.values.toList()),
-                        ),
+                    builder: (context) => Index(repository: BookRepository()),
                   ),
                 );
               },
