@@ -7,7 +7,8 @@ import 'package:bookshelf/book/model/book.dart';
 import '../mocks/file_upload_test.mocks.dart';
 import '../mocks/file_upload_test_setup.dart';
 
-final mockFileUploader = MockFileUploader();
+final mockCoverImageUploader = MockFileUploader();
+final mockSpineImageUploader = MockFileUploader();
 late Box<Book> bookshelf;
 // ダミーデータの作成
 Book dummyBook() {
@@ -65,9 +66,16 @@ Future<void> changeTextFormField(
 
 Future<void> readyShow({required WidgetTester tester, Book? book}) async {
   book ??= dummyBook();
-  mockFunctionInit(mockFileUploader); // showを初期化する際に関数が呼ばれるので関数をMockする
+  mockFunctionInit(mockCoverImageUploader); // showを初期化する際に関数が呼ばれるので関数をMockする
+  mockFunctionInit(mockSpineImageUploader);
   await tester.pumpWidget(
-    MaterialApp(home: Show(book: book, fileUploader: mockFileUploader)),
+    MaterialApp(
+      home: Show(
+        book: book,
+        coverImageUploader: mockCoverImageUploader,
+        spineImageUploader: mockSpineImageUploader,
+      ),
+    ),
   );
   await tester.pumpAndSettle();
 }
@@ -92,10 +100,17 @@ void main() {
   testWidgets('bookのカラム(title,author,height,width,pages,comment)のフォームが存在する', (
     WidgetTester tester,
   ) async {
-    mockPickFileSuccess(mockFileUploader);
+    mockPickFileSuccess(mockCoverImageUploader);
+    mockPickFileSuccess(mockSpineImageUploader);
     final book = dummyBook();
     await tester.pumpWidget(
-      MaterialApp(home: Show(book: book, fileUploader: mockFileUploader)),
+      MaterialApp(
+        home: Show(
+          book: book,
+          coverImageUploader: mockCoverImageUploader,
+          spineImageUploader: mockSpineImageUploader,
+        ),
+      ),
     );
     expect(find.widgetWithText(TextFormField, 'title'), findsOneWidget);
     expect(find.widgetWithText(TextFormField, 'author'), findsOneWidget);
@@ -110,7 +125,8 @@ void main() {
   ) async {
     final String expectedFileName = 'sample_cover_file_path.png';
     await readyShow(tester: tester);
-    mockPickFileSuccess(mockFileUploader, filePath: expectedFileName);
+    mockPickFileSuccess(mockCoverImageUploader, filePath: expectedFileName);
+    mockPickFileFailure(mockSpineImageUploader);
     final uploadButton = find.widgetWithText(ElevatedButton, 'アップロード').at(0);
     await fileUpload(tester, uploadButton);
     expect(findTextWidgetWithText(expectedFileName), findsOneWidget);
@@ -121,8 +137,8 @@ void main() {
   ) async {
     final String expectedFileName = 'sample_spine_file_path.png';
     await readyShow(tester: tester);
-    mockPickFileSuccess(mockFileUploader, filePath: expectedFileName);
-
+    mockPickFileFailure(mockCoverImageUploader);
+    mockPickFileSuccess(mockSpineImageUploader, filePath: expectedFileName);
     final uploadButton = find.widgetWithText(ElevatedButton, 'アップロード').at(1);
     await fileUpload(tester, uploadButton);
 
@@ -134,7 +150,8 @@ void main() {
   ) async {
     final String expectedText = 'アップロードに失敗しました';
     await readyShow(tester: tester);
-    mockPickFileFailure(mockFileUploader);
+    mockPickFileFailure(mockCoverImageUploader);
+    mockPickFileFailure(mockSpineImageUploader);
 
     final uploadButton = find.widgetWithText(ElevatedButton, 'アップロード').at(0);
     await fileUpload(tester, uploadButton);
@@ -145,7 +162,8 @@ void main() {
   ) async {
     final String expectedText = 'アップロードに失敗しました';
     await readyShow(tester: tester);
-    mockPickFileFailure(mockFileUploader);
+    mockPickFileFailure(mockCoverImageUploader);
+    mockPickFileFailure(mockSpineImageUploader);
 
     final uploadButton = find.widgetWithText(ElevatedButton, 'アップロード').at(1);
     await fileUpload(tester, uploadButton);
@@ -161,9 +179,10 @@ void main() {
     final expectedHeight = 2;
     final expectedWidth = 2;
     final expectedComment = 'second comment';
-    final uploadedCoverImagePath = 'sample_cover_image_path.png';
-    final uploadedSpineImagePath = 'sample_spine_image_path.png';
-    final expectedImagePath = 'sample_image_path.png';
+    final uploadedCoverImagePath = 'updated_cover_image_path.png';
+    final uploadedSpineImagePath = 'updated_spine_image_path.png';
+    final expectedCoverImagePath = 'localstorage_cover_image_path.png';
+    final expectedSpineImagePath = 'localstorage_spine_image_path.png';
     final coverImageUpdateButton = find
         .widgetWithText(ElevatedButton, 'アップロード')
         .at(0);
@@ -178,12 +197,25 @@ void main() {
     await changeTextFormField(tester, 'width', expectedWidth.toString());
     await changeTextFormField(tester, 'comment', expectedComment.toString());
     // 2回同じ関数を使って別の返り値を欲するため、ここでmockする
-    mockPickFileSuccess(mockFileUploader, filePath: uploadedCoverImagePath);
+    mockPickFileSuccess(
+      mockCoverImageUploader,
+      filePath: uploadedCoverImagePath,
+    );
     await fileUpload(tester, coverImageUpdateButton);
-    mockPickFileSuccess(mockFileUploader, filePath: uploadedSpineImagePath);
+    mockPickFileSuccess(
+      mockSpineImageUploader,
+      filePath: uploadedSpineImagePath,
+    );
     await fileUpload(tester, spineImageUpdateButton);
     // アップロード時のMock(同じ関数が連続で実行されるためmockは一度のみでcoverとspineを分けない)
-    mockPickFileSuccess(mockFileUploader, resultFilePath: expectedImagePath);
+    mockPickFileSuccess(
+      mockCoverImageUploader,
+      resultFilePath: expectedCoverImagePath,
+    );
+    mockPickFileSuccess(
+      mockSpineImageUploader,
+      resultFilePath: expectedSpineImagePath,
+    );
     // スクロールしてから更新ボタンをクリック
     final updateButton = find.widgetWithText(ElevatedButton, '更新する');
 
@@ -202,7 +234,7 @@ void main() {
     expect(updatedBook.height, expectedHeight);
     expect(updatedBook.width, expectedWidth);
     expect(updatedBook.comment, expectedComment);
-    expect(updatedBook.coverImagePath, expectedImagePath);
-    expect(updatedBook.spineImagePath, expectedImagePath);
+    expect(updatedBook.coverImagePath, expectedCoverImagePath);
+    expect(updatedBook.spineImagePath, expectedSpineImagePath);
   });
 }

@@ -31,9 +31,9 @@ class FileUploader {
       state = FileSelectionState.loadSuccess;
       path = File(filePickerResult.files.single.path!);
       fileName = filePickerResult.files.single.name;
+    } else {
+      state = FileSelectionState.loadFailure;
     }
-
-    state = FileSelectionState.loadFailure;
   }
 
   String fileSelectionDisplayText() {

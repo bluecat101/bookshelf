@@ -6,8 +6,15 @@ import 'package:hive/hive.dart';
 
 class Show extends StatefulWidget {
   final Book book;
-  final FileUploader fileUploader;
-  const Show({super.key, required this.book, required this.fileUploader});
+  final FileUploader coverImageUploader;
+  final FileUploader spineImageUploader;
+  const Show({
+    super.key,
+    required this.book,
+    required this.coverImageUploader,
+    required this.spineImageUploader,
+  });
+
   @override
   State<Show> createState() => _ShowPageState();
 }
@@ -20,8 +27,8 @@ class _ShowPageState extends State<Show> {
   late TextEditingController _heightController;
   late TextEditingController _widthController;
   late TextEditingController _commentController;
-  late FileUploader _coverImageFile;
-  late FileUploader _spineImageFile;
+  late FileUploader _coverUploader;
+  late FileUploader _spineUploader;
 
   @override
   void initState() {
@@ -37,8 +44,8 @@ class _ShowPageState extends State<Show> {
       text: widget.book.width.toString(),
     );
     _commentController = TextEditingController(text: widget.book.comment);
-    _coverImageFile = widget.fileUploader;
-    _spineImageFile = widget.fileUploader;
+    _coverUploader = widget.coverImageUploader;
+    _spineUploader = widget.spineImageUploader;
   }
 
   @override
@@ -79,8 +86,14 @@ class _ShowPageState extends State<Show> {
         width: int.parse(_widthController.text),
         comment: _commentController.text,
         coverImageUrl: book.coverImageUrl,
-        coverImagePath: await _coverImageFile.saveImageFromPath(),
-        spineImagePath: await _spineImageFile.saveImageFromPath(),
+        coverImagePath:
+            _coverUploader.state == FileSelectionState.loadSuccess
+                ? await _coverUploader.saveImageFromPath()
+                : book.coverImagePath,
+        spineImagePath:
+            _spineUploader.state == FileSelectionState.loadSuccess
+                ? await _spineUploader.saveImageFromPath()
+                : book.spineImagePath,
       );
       final (box, bookIndex) = await fetchBookIndex(book);
       if (bookIndex == -1) {
@@ -173,8 +186,8 @@ class _ShowPageState extends State<Show> {
                   ),
                 ),
               ),
-              FileUploadWidget(label: '表紙', fileUploader: widget.fileUploader),
-              FileUploadWidget(label: '背表紙', fileUploader: widget.fileUploader),
+              FileUploadWidget(label: '表紙', fileUploader: _coverUploader),
+              FileUploadWidget(label: '背表紙', fileUploader: _spineUploader),
               Row(
                 children: [
                   ElevatedButton(

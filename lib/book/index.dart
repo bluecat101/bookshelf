@@ -56,7 +56,11 @@ class _IndexPageState extends State<Index> {
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) {
-          return Show(book: book, fileUploader: FileUploader());
+          return Show(
+            book: book,
+            coverImageUploader: FileUploader(),
+            spineImageUploader: FileUploader(),
+          );
         },
       ),
     );
