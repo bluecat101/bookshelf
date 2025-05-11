@@ -24,16 +24,6 @@ import 'package:mockito/src/dummies.dart' as _i5;
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
 
-class _FakeFileUploader_0 extends _i1.SmartFake implements _i2.FileUploader {
-  _FakeFileUploader_0(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
 /// A class which mocks [FileUploader].
 ///
 /// See the documentation for Mockito's code generation for more information.
@@ -76,19 +66,14 @@ class MockFileUploader extends _i1.Mock implements _i2.FileUploader {
       );
 
   @override
-  _i4.Future<_i2.FileUploader> pickFile() => (super.noSuchMethod(
+  _i4.Future<void> pickFile() => (super.noSuchMethod(
         Invocation.method(
           #pickFile,
           [],
         ),
-        returnValue: _i4.Future<_i2.FileUploader>.value(_FakeFileUploader_0(
-          this,
-          Invocation.method(
-            #pickFile,
-            [],
-          ),
-        )),
-      ) as _i4.Future<_i2.FileUploader>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
   String fileSelectionDisplayText() => (super.noSuchMethod(
@@ -104,4 +89,13 @@ class MockFileUploader extends _i1.Mock implements _i2.FileUploader {
           ),
         ),
       ) as String);
+
+  @override
+  _i4.Future<String?> saveImageFromPath() => (super.noSuchMethod(
+        Invocation.method(
+          #saveImageFromPath,
+          [],
+        ),
+        returnValue: _i4.Future<String?>.value(),
+      ) as _i4.Future<String?>);
 }

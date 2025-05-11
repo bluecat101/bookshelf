@@ -20,8 +20,8 @@ class _ShowPageState extends State<Show> {
   late TextEditingController _heightController;
   late TextEditingController _widthController;
   late TextEditingController _commentController;
-  FileUploader _coverImageFile = FileUploader();
-  FileUploader _spineImageFile = FileUploader();
+  late FileUploader _coverImageFile;
+  late FileUploader _spineImageFile;
 
   @override
   void initState() {
@@ -37,6 +37,8 @@ class _ShowPageState extends State<Show> {
       text: widget.book.width.toString(),
     );
     _commentController = TextEditingController(text: widget.book.comment);
+    _coverImageFile = widget.fileUploader;
+    _spineImageFile = widget.fileUploader;
   }
 
   @override
@@ -75,8 +77,8 @@ class _ShowPageState extends State<Show> {
       book.height = int.parse(_heightController.text);
       book.width = int.parse(_widthController.text);
       book.comment = _commentController.text;
-      book.coverImagePath = _coverImageFile.uploadFilePath;
-      book.spineImagePath = _spineImageFile.uploadFilePath;
+      book.coverImagePath = await _coverImageFile.saveImageFromPath();
+      book.spineImagePath = await _spineImageFile.saveImageFromPath();
       return true;
     }
     return false;
@@ -162,24 +164,8 @@ class _ShowPageState extends State<Show> {
                   ),
                 ),
               ),
-              FileUploadWidget(
-                label: '表紙',
-                fileUploader: widget.fileUploader,
-                onFileInfo: (fileUploaderResult) {
-                  setState(() {
-                    _coverImageFile = fileUploaderResult;
-                  });
-                },
-              ),
-              FileUploadWidget(
-                label: '背表紙',
-                fileUploader: widget.fileUploader,
-                onFileInfo: (fileUploaderResult) {
-                  setState(() {
-                    _spineImageFile = fileUploaderResult;
-                  });
-                },
-              ),
+              FileUploadWidget(label: '表紙', fileUploader: widget.fileUploader),
+              FileUploadWidget(label: '背表紙', fileUploader: widget.fileUploader),
               Row(
                 children: [
                   ElevatedButton(

@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
 
 enum FileSelectionState {
@@ -22,21 +22,18 @@ class FileUploader {
     return (state == FileSelectionState.loadSuccess) ? path?.path : null;
   }
 
-  Future<FileUploader> pickFile() async {
+  Future<void> pickFile() async {
     final filePickerResult = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['png', 'jpg', 'HEIC'],
     );
     if (filePickerResult != null) {
-      final filePath = File(filePickerResult.files.single.path!);
-      final fileName = filePickerResult.files.single.name;
-      return FileUploader(
-        state: FileSelectionState.loadSuccess,
-        path: filePath,
-        fileName: fileName,
-      );
+      state = FileSelectionState.loadSuccess;
+      path = File(filePickerResult.files.single.path!);
+      fileName = filePickerResult.files.single.name;
     }
-    return FileUploader(state: FileSelectionState.loadFailure);
+
+    state = FileSelectionState.loadFailure;
   }
 
   String fileSelectionDisplayText() {
@@ -48,5 +45,17 @@ class FileUploader {
       case FileSelectionState.loadFailure:
         return 'アップロードに失敗しました';
     }
+  }
+
+  Future<String?> saveImageFromPath() async {
+    if (state != FileSelectionState.loadSuccess) {
+      return Future.value(null);
+    }
+
+    final bytes = await path!.readAsBytes();
+    final dir = await getApplicationDocumentsDirectory();
+    final newFile = File('${dir.path}/${fileName!}');
+    await newFile.writeAsBytes(bytes);
+    return newFile.path;
   }
 }
