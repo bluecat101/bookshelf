@@ -7,58 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bookshelf/book/index.dart';
 import 'package:bookshelf/book/model/book.dart';
+import '../mocks/book_repository.mocks.dart';
+import '../mocks/book_repository_setup.dart';
 import '../mocks/image_helper_test.mocks.dart';
 import '../mocks/image_helper_test_setup.dart';
 
 late MockImageHelperImpl mockImageHelper;
-
-const sampleLocalImage = 'test/assets/test_image.png';
-// testで実際のhttpリクエストを送ると400番になるため画像はローカルに保存しておく
-const sampleUrlImage = 'test/assets/test_url_image.png';
-
-Book makeDummyBook({
-  String title = 'sample title',
-  String author = 'sample author',
-  int pages = 100,
-  int height = 20,
-  int width = 10,
-  String? coverImageUrl,
-  String? coverImagePath,
-  String? spineImagePath,
-}) {
-  return Book(
-    title: title,
-    author: author,
-    pages: pages,
-    height: height,
-    width: width,
-    coverImageUrl: coverImageUrl,
-    coverImagePath: coverImagePath,
-    spineImagePath: spineImagePath,
-  );
-}
-
-enum BookType { hasUrl, hasImagePath, hasNoUrlAndPath }
-
-extension BookTypeExtension on BookType {
-  int get index {
-    return this.index;
-  }
-}
-
-Future<List<Book>> dummyBooks() async {
-  return [
-    // URLのみ
-    makeDummyBook(coverImageUrl: sampleUrlImage),
-    // 画像のpathを持っている
-    makeDummyBook(
-      coverImagePath: sampleLocalImage,
-      spineImagePath: sampleLocalImage,
-    ),
-    // 画像なし
-    makeDummyBook(),
-  ];
-}
+late MockBookRepository mockBookRepository;
 
 Future<void> readyMockImageHelper({
   required bool existUrl,
@@ -76,7 +31,10 @@ Future<void> setupIndexWithBooks({
 }) async {
   futureBooks ??= dummyBooks();
   await readyMockImageHelper(existUrl: existUrl, displayImage: displayImage);
-  await tester.pumpWidget(MaterialApp(home: Index(booksFuture: futureBooks)));
+  mockFetchBooks(mockBookRepository, books: futureBooks);
+  await tester.pumpWidget(
+    MaterialApp(home: Index(repository: mockBookRepository)),
+  );
   await tester.pumpAndSettle();
 }
 
@@ -116,6 +74,7 @@ void initDI() {
   setUpAll(() async {
     mockImageHelper = MockImageHelperImpl();
     getIt.registerLazySingleton<ImageHelperImpl>(() => mockImageHelper);
+    mockBookRepository = MockBookRepository();
   });
 
   tearDownAll(() async {
@@ -234,7 +193,10 @@ void main() {
   testWidgets('[成功時]表示されている個数が合っている', (WidgetTester tester) async {
     // Arrange
     final books = dummyBooks();
-    await tester.pumpWidget(MaterialApp(home: Index(booksFuture: books)));
+    mockFetchBooks(mockBookRepository, books: books);
+    await tester.pumpWidget(
+      MaterialApp(home: Index(repository: mockBookRepository)),
+    );
     await tester.pumpAndSettle();
     // Assert
     expect(find.byType(InkWell), findsNWidgets((await books).length));
